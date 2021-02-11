@@ -6,6 +6,7 @@ alias currentPressure r1
 alias maxTemp r2
 alias maxPressure r3
 alias ticks r4
+alias pressureDiff r5
 
 s furnace On 1
 
@@ -42,8 +43,6 @@ l maxTemp tempMem Setting
 l currentTemp furnace Temperature
 l currentPressure furnace Pressure
 
-sub maxTemp maxTemp 20
-
 blt maxTemp 100 waitActive
 bgt currentPressure maxPressure vent #If pressure is too high, start outgassing
 s furnace SettingOutput 0
@@ -53,7 +52,20 @@ s furnace SettingInput 5
 j heat
 
 vent:
+sub pressureDiff currentPressure maxPressure
+brlt pressureDiff 10000 3
+s furnace SettingOutput 80
+j stopFuel
+brlt pressureDiff 5000 3
+s furnace SettingOutput 50
+j stopFuel
+brlt pressureDiff 2000 3
+s furnace SettingOutput 30
+j stopFuel
+brlt pressureDiff 1000 3
 s furnace SettingOutput 20
+j stopFuel
+s furnace SettingOutput 10
 j stopFuel #If we're venting, also stop fuel
 
 stopFuel:
