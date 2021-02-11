@@ -95,8 +95,8 @@ move ExpectedReagents 200
 brne IngotTarget WaspaloyIngot 6
 move MinPressure 50010
 move MaxPressure 51090
-move MinTemparature 1810
-move MaxTemparature 2090
+move MinTemparature 410
+move MaxTemparature 790
 move ExpectedReagents 200
 
 s Furnace Open 0 #Start Ore Selection

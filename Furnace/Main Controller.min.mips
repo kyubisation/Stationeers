@@ -54,8 +54,8 @@ move r1 200
 brne r6 156348098 6
 move r2 50010
 move r3 51090
-move r4 1810
-move r5 2090
+move r4 410
+move r5 790
 move r1 200
 s d0 Open 0 #Start Ore Selection
 s d3 Setting r3
