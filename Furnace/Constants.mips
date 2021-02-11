@@ -1,0 +1,33 @@
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+define SteelIngot -654790771

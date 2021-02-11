@@ -1,0 +1,189 @@
+alias OreVendor d0
+alias PostVendorSorter d1
+alias SmeltingStateMemory d2
+
+alias CoalOreCounter r0
+alias CobaltOreCounter r1
+alias CopperOreCounter r2
+alias GoldOreCounter r3
+alias IronOreCounter r4
+alias LeadOreCounter r5
+alias NickelOreCounter r6
+alias SiliconOreCounter r7
+alias SilverOreCounter r8
+alias SteelIngotCounter r9
+
+alias SlotIndex r10
+alias SlotContentType r11
+alias CurrentCounter r12
+alias VendorQuantity r13
+
+alias LargestCounterAmount r14
+alias LargestCounterType r15
+
+alias ExternalBusy r13
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+define SteelIngot -654790771
+
+define MinStorage 3
+define MaxStorage 10
+
+define SorterOutputFurnace 0
+define SorterOutputStorage 1
+
+s PostVendorSorter On 1
+s PostVendorSorter Mode 2
+s PostVendorSorter Lock 0
+
+s OreVendor On 1
+s OreVendor Lock 0
+
+# Reset ready state
+s SmeltingStateMemory Setting SmeltVendorCheck
+
+start:
+# Wait for device input/output to be finished
+jal waitDeviceOutput
+
+# If smelting state 
+l ExternalBusy SmeltingStateMemory Setting
+bne ExternalBusy SmeltLoadingFurnace detectionCycle
+sleep 1
+j start
+
+detectionCycle:
+# Reset counters
+move CoalOreCounter 0
+move CobaltOreCounter 0
+move CopperOreCounter 0
+move GoldOreCounter 0
+move IronOreCounter 0
+move LeadOreCounter 0
+move NickelOreCounter 0
+move SiliconOreCounter 0
+move SilverOreCounter 0
+move SteelIngotCounter 0
+move LargestCounterAmount 0
+move LargestCounterType 0
+
+# The first storage slot index is 2
+move SlotIndex 1
+
+slotCycle:
+add SlotIndex SlotIndex 1
+beq SlotIndex 102 checkStorage
+
+ls SlotContentType OreVendor SlotIndex Occupied
+beqz SlotContentType slotCycle
+
+ls SlotContentType OreVendor SlotIndex OccupantHash
+brne SlotContentType CoalOre 3
+add CoalOreCounter CoalOreCounter 1
+move CurrentCounter CoalOreCounter
+brne SlotContentType CobaltOre 3
+add CobaltOreCounter CobaltOreCounter 1
+move CurrentCounter CobaltOreCounter
+brne SlotContentType CopperOre 3
+add CopperOreCounter CopperOreCounter 1
+move CurrentCounter CopperOreCounter
+brne SlotContentType GoldOre 3
+add GoldOreCounter GoldOreCounter 1
+move CurrentCounter GoldOreCounter
+brne SlotContentType IronOre 3
+add IronOreCounter IronOreCounter 1
+move CurrentCounter IronOreCounter
+brne SlotContentType LeadOre 3
+add LeadOreCounter LeadOreCounter 1
+move CurrentCounter LeadOreCounter
+brne SlotContentType NickelOre 3
+add NickelOreCounter NickelOreCounter 1
+move CurrentCounter NickelOreCounter
+brne SlotContentType SiliconOre 3
+add SiliconOreCounter SiliconOreCounter 1
+move CurrentCounter SiliconOreCounter
+brne SlotContentType SilverOre 3
+add SilverOreCounter SilverOreCounter 1
+move CurrentCounter SilverOreCounter
+brne SlotContentType SteelIngot 3
+add SteelIngotCounter SteelIngotCounter 1
+move CurrentCounter SteelIngotCounter
+
+bgt LargestCounterAmount CurrentCounter slotCycle
+move LargestCounterAmount CurrentCounter
+move LargestCounterType SlotContentType
+j slotCycle
+
+checkStorage:
+# If loading state return to start
+l ExternalBusy SmeltingStateMemory Setting
+bne ExternalBusy SmeltLoadingFurnace checkReady
+sleep 1
+j start
+
+checkReady:
+s db Setting CoalOre
+blt CoalOreCounter MinStorage notReady
+s db Setting CobaltOre
+blt CobaltOreCounter MinStorage notReady
+s db Setting CopperOre
+blt CopperOreCounter MinStorage notReady
+s db Setting GoldOre
+blt GoldOreCounter MinStorage notReady
+s db Setting IronOre
+blt IronOreCounter MinStorage notReady
+s db Setting LeadOre
+blt LeadOreCounter MinStorage notReady
+s db Setting NickelOre
+blt NickelOreCounter MinStorage notReady
+s db Setting SiliconOre
+blt SiliconOreCounter MinStorage notReady
+s db Setting SilverOre
+blt SilverOreCounter MinStorage notReady
+s db Setting SteelIngot
+blt SteelIngotCounter MinStorage notReady
+s db Setting 0
+# If all counters match or exceed the minimum required amount
+# we set the ready memory to true
+s SmeltingStateMemory Setting SmeltVendorReady
+s PostVendorSorter Output SorterOutputFurnace
+j done
+
+notReady:
+# If there are empty slots, we can wait for them to be filled
+l VendorQuantity OreVendor Quantity
+bne VendorQuantity 100 done
+
+# Configure sorter to route to storage
+s PostVendorSorter Output SorterOutputStorage
+s OreVendor RequestHash LargestCounterType
+
+jal waitDeviceOutput
+
+done:
+yield
+j start
+
+waitDeviceOutput:
+yield
+ls ExternalBusy OreVendor 1 Occupied
+bgtz ExternalBusy waitDeviceOutput
+ls ExternalBusy PostVendorSorter 0 Occupied
+bgtz ExternalBusy waitDeviceOutput
+ls ExternalBusy PostVendorSorter 1 Occupied
+bgtz ExternalBusy waitDeviceOutput
+ls ExternalBusy PostVendorSorter 2 Occupied
+bgtz ExternalBusy waitDeviceOutput
+j ra

@@ -1,0 +1,49 @@
+alias Filter d0
+alias Tank d1
+alias CanisterRegulator d3
+alias GasTankStorage d4
+alias WasteTank d5
+
+alias CanisterInserted r2
+alias CanisterPressure r3
+
+# Max pipe pressure is 60.795MPa
+# Units are KPa
+define MaxTankPressure 45000
+define MinWastePressure 100
+# Unit of Canister are Pascal
+define MaxCanisterPressure 9500000
+define RegulatorPressuer 9500
+
+start:
+
+# Activate filter if below MaxTankPressure
+# Deactivate filter if above MaxTankPressure
+# or below MinWastePressure
+l r0 Tank Pressure
+ble MaxTankPressure r0 disabletank
+l r1 WasteTank Pressure
+ble r1 MinWastePressure disabletank
+s Filter On 1
+j posttank
+disabletank:
+s Filter On 0
+posttank:
+
+# Fill canister, if available
+bdns GasTankStorage posttankstorage
+ls CanisterInserted GasTankStorage 0 Occupied
+beqz CanisterInserted disabletankstorage
+ls CanisterPressure GasTankStorage 0 Pressure
+ble MaxCanisterPressure CanisterPressure disabletankstorage
+s CanisterRegulator Setting RegulatorPressuer
+s CanisterRegulator On 1
+j posttankstorage
+disabletankstorage:
+s CanisterRegulator Setting 0
+s CanisterRegulator On 0
+posttankstorage:
+
+done:
+yield
+j start

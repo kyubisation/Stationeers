@@ -1,0 +1,118 @@
+alias IngotSelectionMemory d0
+alias NextIngot d1
+alias PreviousIngot d2
+alias TemparatureMemory d3
+alias PressureMemory d4
+
+alias IngotIndex r0
+alias IngotTarget r1
+alias PreviousButtonActive r2
+alias NextButtonActive r3
+
+define LastIndex 16
+
+move IngotIndex 0
+
+start:
+
+l NextButtonActive NextIngot Setting
+bgtz NextButtonActive increment
+l PreviousButtonActive PreviousIngot Setting
+bgtz PreviousButtonActive decrement
+j indexChangeDone
+
+increment:
+beq IngotIndex LastIndex reset
+add IngotIndex IngotIndex 1
+j indexChangeDone
+
+decrement:
+beq IngotIndex 0 toend
+sub IngotIndex IngotIndex 1
+j indexChangeDone
+
+reset:
+move IngotIndex 0
+j indexChangeDone
+
+toend:
+move IngotIndex LastIndex
+
+indexChangeDone:
+
+
+mul IngotTarget IngotIndex 4
+add IngotTarget IngotTarget 1
+jr IngotTarget
+s IngotSelectionMemory Setting -404336834 # Copper
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 226410516 # Gold
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -1301215609 # Iron
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 2134647745 # Lead
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -1406385572 # Nickel
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -290196476 # Silicon
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -929742000 # Silver
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 1058547521 # Constantan
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 502280180 # Electrum
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -297990285 # Invar
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -82508479 # Solder
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -654790771 # Steel
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 412924554 # Astroloy
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 1579842814 # Hastelloy
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -787796599 # Inconel
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting -1897868623 # Stellite
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+j selectionDone
+s IngotSelectionMemory Setting 156348098 # Waspaloy
+s TemparatureMemory Setting 
+s PressureMemory Setting 
+selectionDone:
+
+done:
+yield
+j start

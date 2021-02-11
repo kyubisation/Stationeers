@@ -1,0 +1,136 @@
+s d1 On 1
+s d1 Mode 2
+s d1 Lock 0
+s d2 Setting 0
+move r0 0
+move r1 0
+move r2 0
+move r3 0
+move r4 0
+move r5 0
+move r6 0
+move r7 0
+move r8 0
+move r9 0
+s d0 On 0
+move r12 1
+slotCycle:
+add r12 r12 1
+beq r12 102 start
+ls r14 d0 r12 Occupied
+bgtzal r14 incrementCounter
+j slotCycle
+start:
+jal findMinMax
+s d0 On 1
+jal waitDeviceOutput
+l r12 d2 Setting
+bne r12 2 detectionCycle
+sleep 1
+j start
+detectionCycle:
+checkStorage:
+s d2 Setting 1
+s d1 Output 0
+j done
+notReady:
+l r13 d0 Quantity
+bne r13 100 done
+s d1 Output 1
+s d0 RequestHash r10
+sleep 1
+jal waitDeviceOutput
+done:
+yield
+j start
+waitDeviceOutput:
+yield
+ls r12 d0 1 Occupied
+bgtz r12 waitDeviceOutput
+j ra
+incrementCounter:
+ls r13 d0 r12 OccupantHash
+brne r13 1724793494 2
+add r0 r0 1
+brne r13 -983091249 2
+add r1 r1 1
+brne r13 -707307845 2
+add r2 r2 1
+brne r13 -1348105509 2
+add r3 r3 1
+brne r13 1758427767 2
+add r4 r4 1
+brne r13 -190236170 2
+add r5 r5 1
+brne r13 1830218956 2
+add r6 r6 1
+brne r13 1103972403 2
+add r7 r7 1
+brne r13 -916518678 2
+add r8 r8 1
+brne r13 -916518678 2
+add r9 r9 1
+bgt r12 r15 ra
+move r12 r15
+move r10 r13
+j ra
+findMinMax:
+move r10 1724793494
+move r11 1724793494
+move r12 r0
+move r13 r0
+brge r12 r1 3
+move r10 -983091249
+move r12 r1
+brle r13 r1 3
+move r11 -983091249
+move r13 r1
+brge r12 r2 3
+move r10 -707307845
+move r12 r2
+brle r13 r2 3
+move r11 -707307845
+move r13 r2
+brge r12 r3 3
+move r10 -1348105509
+move r12 r3
+brle r13 r3 3
+move r11 -1348105509
+move r13 r3
+brge r12 r4 3
+move r10 1758427767
+move r12 r4
+brle r13 r4 3
+move r11 1758427767
+move r13 r4
+brge r12 r5 3
+move r10 -190236170
+move r12 r5
+brle r13 r5 3
+move r11 -190236170
+move r13 r5
+brge r12 r6 3
+move r10 1830218956
+move r12 r6
+brle r13 r6 3
+move r11 1830218956
+move r13 r6
+brge r12 r7 3
+move r10 1103972403
+move r12 r7
+brle r13 r7 3
+move r11 1103972403
+move r13 r7
+brge r12 r8 3
+move r10 -916518678
+move r12 r8
+brle r13 r8 3
+move r11 -916518678
+move r13 r8
+brge r12 r9 3
+move r10 -654790771
+move r12 r9
+brle r13 r9 3
+move r11 -654790771
+move r13 r9
+j ra

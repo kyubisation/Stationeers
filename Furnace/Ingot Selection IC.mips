@@ -1,0 +1,115 @@
+alias IngotDisplayMemory d0
+alias NextIngotButton d1
+alias PreviousIngotButton d2
+alias SmeltingStateMemory d3
+
+alias IngotIndex r0
+alias IngotTarget r1
+alias PreviousButtonActive r2
+alias NextButtonActive r3
+alias SmeltingState r4
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+define LastIndex 16
+
+define ItemMiningBelt -676435305
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+move IngotIndex 0
+
+start:
+
+l SmeltingState SmeltingStateMemory Setting
+bne SmeltingState SmeltVendorCheck ready
+move IngotIndex 0
+s IngotDisplayMemory Setting ItemMiningBelt
+j done
+
+ready:
+bne SmeltingState SmeltVendorReady done
+
+l NextButtonActive NextIngotButton Setting
+bgtz NextButtonActive increment
+l PreviousButtonActive PreviousIngotButton Setting
+bgtz PreviousButtonActive decrement
+j indexChangeDone
+
+increment:
+beq IngotIndex LastIndex resetIndex
+add IngotIndex IngotIndex 1
+j indexChangeDone
+
+decrement:
+beq IngotIndex 0 toLastIndex
+sub IngotIndex IngotIndex 1
+j indexChangeDone
+
+resetIndex:
+move IngotIndex 0
+j indexChangeDone
+
+toLastIndex:
+move IngotIndex LastIndex
+
+indexChangeDone:
+
+mul IngotTarget IngotIndex 2
+add IngotTarget IngotTarget 1
+jr IngotTarget
+s IngotDisplayMemory Setting CopperIngot
+j selectionDone
+s IngotDisplayMemory Setting GoldIngot
+j selectionDone
+s IngotDisplayMemory Setting IronIngot
+j selectionDone
+s IngotDisplayMemory Setting LeadIngot
+j selectionDone
+s IngotDisplayMemory Setting NickelIngot
+j selectionDone
+s IngotDisplayMemory Setting SiliconIngot
+j selectionDone
+s IngotDisplayMemory Setting SilverIngot
+j selectionDone
+s IngotDisplayMemory Setting ConstantanIngot
+j selectionDone
+s IngotDisplayMemory Setting ElectrumIngot
+j selectionDone
+s IngotDisplayMemory Setting InvarIngot
+j selectionDone
+s IngotDisplayMemory Setting SolderIngot
+j selectionDone
+s IngotDisplayMemory Setting SteelIngot
+j selectionDone
+s IngotDisplayMemory Setting AstroloyIngot
+j selectionDone
+s IngotDisplayMemory Setting HastelloyIngot
+j selectionDone
+s IngotDisplayMemory Setting InconelIngot
+j selectionDone
+s IngotDisplayMemory Setting StelliteIngot
+j selectionDone
+s IngotDisplayMemory Setting WaspaloyIngot
+selectionDone:
+
+done:
+yield
+j start

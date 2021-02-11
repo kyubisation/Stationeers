@@ -1,0 +1,24 @@
+alias Tank d0
+alias BackPressure d1
+
+# Max pipe pressure is 60.795MPa
+# Units are KPa
+define MaxTankPressure 50000
+
+start:
+
+# Activate filter if below MaxTankPressure
+# Deactivate filter if above MaxTankPressure
+l r0 Tank Pressure
+sub r0 MaxTankPressure r0
+bgtz r0 tankok
+s BackPressure Setting 100
+s BackPressure On 1
+j done
+tankok:
+s BackPressure Setting 0
+s BackPressure On 0
+
+done:
+yield
+j start

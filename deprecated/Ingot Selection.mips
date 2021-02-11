@@ -1,0 +1,81 @@
+alias Furnace d0
+alias OreVendor d1
+alias FurnaceSorter d2
+alias IngotSelectionMemory d3
+alias NextIngot d4
+alias PreviousIngot d5
+
+alias IngotIndex r0
+alias IngotTarget r1
+
+define i00_CopperIngot -404336834
+define i01_GoldIngot 226410516
+define i02_IronIngot -1301215609
+define i03_LeadIngot 2134647745
+define i04_NickelIngot -1406385572
+define i05_SiliconIngot -290196476
+define i06_SilverIngot -929742000
+define i07_ConstantanIngot 1058547521
+define i08_ElectrumIngot 502280180
+define i09_InvarIngot -297990285
+define i10_SolderIngot -82508479
+define i11_SteelIngot -654790771
+define i12_AstroloyIngot 412924554
+define i13_HastelloyIngot 1579842814
+define i14_InconelIngot -787796599	
+define i15_StelliteIngot -1897868623
+define i16_WaspaloyIngot 156348098
+
+define Coal 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+
+start:
+
+mul IngotTarget IngotIndex 2
+add IngotTarget IngotTarget 1
+jr IngotTarget
+s IngotSelectionMemory Setting i00_CopperIngot
+j selectionDone
+s IngotSelectionMemory Setting i01_GoldIngot
+j selectionDone
+s IngotSelectionMemory Setting i02_IronIngot
+j selectionDone
+s IngotSelectionMemory Setting i03_LeadIngot
+j selectionDone
+s IngotSelectionMemory Setting i04_NickelIngot
+j selectionDone
+s IngotSelectionMemory Setting i05_SiliconIngot
+j selectionDone
+s IngotSelectionMemory Setting i06_SilverIngot
+j selectionDone
+s IngotSelectionMemory Setting i07_ConstantanIngot
+j selectionDone
+s IngotSelectionMemory Setting i08_ElectrumIngot
+j selectionDone
+s IngotSelectionMemory Setting i09_InvarIngot
+j selectionDone
+s IngotSelectionMemory Setting i10_SolderIngot
+j selectionDone
+s IngotSelectionMemory Setting i11_SteelIngot
+j selectionDone
+s IngotSelectionMemory Setting i12_AstroloyIngot
+j selectionDone
+s IngotSelectionMemory Setting i13_HastelloyIngot
+j selectionDone
+s IngotSelectionMemory Setting i14_InconelIngot
+j selectionDone
+s IngotSelectionMemory Setting i15_StelliteIngot
+j selectionDone
+s IngotSelectionMemory Setting i16_WaspaloyIngot
+selectionDone:
+
+done:
+yield
+j start

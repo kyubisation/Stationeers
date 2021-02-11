@@ -1,0 +1,95 @@
+# Breathable atmosphere
+
+### Configuration
+
+# Add atmosphere if pressure > this
+define MinPressure 101 # KPa
+
+# Drain atmosphere if pressure < this
+define MaxPressure 101.8 # KPa
+
+define DesiredRatioO2 0.2
+define DesiredRatioN2 0.7
+define DesiredRatioCO2 0.1
+
+### Devices
+alias GasSensor d0
+alias O2Pump d1
+alias N2Pump d2
+alias CO2Pump d3
+alias ReturnPump d4
+
+checkEnvironment:
+l r0 GasSensor Pressure
+# Check to see if we need to add pressure
+blt r0 MinPressure addPressure
+# Check to see if we need to remove pressure
+bgt r0 MaxPressure drain
+checkRatio:
+# Check to see if O2 is too low
+l r0 GasSensor RatioOxygen
+blt r0 DesiredRatioO2 addO2
+# Check to see if CO2 is too low
+l r0 GasSensor RatioCarbonDioxide
+blt r0 DesiredRatioCO2 addCO2
+# Check to see if N2 is too low
+l r0 GasSensor RatioNitrogen
+blt r0 DesiredRatioN2 addN2
+# Rest and reset
+yield
+j reset
+
+addO2:
+s O2Pump On 1
+s db Setting 1
+yield
+l r0 GasSensor RatioOxygen
+bge r0 DesiredRatioO2 reset
+l r0 GasSensor Pressure
+bge r0 MaxPressure reset
+j addO2
+
+addN2:
+s N2Pump On 1
+s db Setting 2
+yield
+l r0 GasSensor RatioNitrogen
+bge r0 DesiredRatioN2 reset
+l r0 GasSensor Pressure
+bge r0 MaxPressure reset
+j addN2
+
+addCO2:
+s CO2Pump On 1
+s db Setting 3
+yield
+l r0 GasSensor RatioCarbonDioxide
+bge r0 DesiredRatioCO2 reset
+l r0 GasSensor Pressure
+bge r0 MaxPressure reset
+j addCO2
+
+addPressure:
+# Add in some N2 to get the equalization process started
+s N2Pump On 1
+s db Setting 4
+sleep 0.5
+s N2Pump On 0
+# Ratio equalization takes effect from here
+j checkRatio
+
+drain:
+s ReturnPump On 1
+s db Setting -1
+yield
+l r0 GasSensor Pressure
+bge MaxPressure r0 reset
+j drain
+
+reset:
+s O2Pump On 0
+s N2Pump On 0
+s CO2Pump On 0
+s ReturnPump On 0
+s db Setting 0
+j checkEnvironment

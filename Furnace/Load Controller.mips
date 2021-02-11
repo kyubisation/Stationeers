@@ -1,0 +1,128 @@
+alias OreVendor d0
+alias SmeltingStateMemory d1
+alias IngotSelectionMemory d2
+alias SmeltButton d3
+alias PostVendorSorter d4
+alias SmeltButtonState r0
+alias SmeltingState r1
+alias IngotSelection r2
+alias Dispensing r3
+alias RequestHashType r4
+define SorterOutputFurnace 0
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+
+start:
+l SmeltButtonState SmeltButton Setting
+beqz SmeltButtonState done
+l SmeltingState SmeltingStateMemory Setting
+bne SmeltingState SmeltVendorReady done
+
+s SmeltingStateMemory Setting SmeltLoadingFurnace
+l IngotSelection IngotSelectionMemory Setting
+
+brne IngotSelection CopperIngot 2
+push CopperOre
+brne IngotSelection GoldIngot 2
+push GoldOre
+brne IngotSelection IronIngot 2
+push IronOre
+brne IngotSelection LeadIngot 2
+push LeadOre
+brne IngotSelection NickelIngot 2
+push NickelOre
+brne IngotSelection SiliconIngot 2
+push SiliconOre
+brne IngotSelection SilverIngot 2
+push SilverOre
+brne IngotSelection ConstantanIngot 3
+push CopperOre
+push NickelOre
+brne IngotSelection ElectrumIngot 3
+push SilverOre
+push GoldOre
+brne IngotSelection InvarIngot 3
+push IronOre
+push NickelOre
+brne IngotSelection SolderIngot 3
+push IronOre
+push LeadOre
+brne IngotSelection SteelIngot 5
+push IronOre
+push IronOre
+push IronOre
+push CoalOre
+brne IngotSelection AstroloyIngot 5
+push SteelIngot
+push SteelIngot
+push CopperOre
+push CobaltOre
+brne IngotSelection HastelloyIngot 5
+push SilverOre
+push SilverOre
+push NickelOre
+push CobaltOre
+brne IngotSelection InconelIngot 5
+push GoldOre
+push GoldOre
+push NickelOre
+push SteelIngot
+brne IngotSelection StelliteIngot 5
+push SiliconOre
+push SiliconOre
+push SilverOre
+push CobaltOre
+brne IngotSelection WaspaloyIngot 5
+push LeadOre
+push LeadOre
+push SiliconOre
+push NickelOre
+dispense:
+beq sp 0 done #When the stack is empty, end
+pop RequestHashType
+s PostVendorSorter Output SorterOutputFurnace
+s OreVendor RequestHash RequestHashType
+jal waitDeviceOutput
+j dispense
+done:
+yield
+j start
+
+waitDeviceOutput:
+yield
+ls Dispensing OreVendor 1 Occupied
+bgtz Dispensing waitDeviceOutput
+ls Dispensing PostVendorSorter 0 Occupied
+bgtz Dispensing waitDeviceOutput
+ls Dispensing PostVendorSorter 1 Occupied
+bgtz Dispensing waitDeviceOutput
+ls Dispensing PostVendorSorter 2 Occupied
+bgtz Dispensing waitDeviceOutput
+j ra

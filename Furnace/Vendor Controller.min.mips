@@ -1,0 +1,116 @@
+s d1 On 1
+s d1 Mode 2
+s d1 Lock 0
+s d0 On 1
+s d0 Lock 0
+s d2 Setting 0
+start:
+jal waitDeviceOutput
+l r13 d2 Setting
+bne r13 2 detectionCycle
+sleep 1
+j start
+detectionCycle:
+move r0 0
+move r1 0
+move r2 0
+move r3 0
+move r4 0
+move r5 0
+move r6 0
+move r7 0
+move r8 0
+move r9 0
+move r14 0
+move r15 0
+move r10 1
+slotCycle:
+add r10 r10 1
+beq r10 102 checkStorage
+ls r11 d0 r10 Occupied
+beqz r11 slotCycle
+ls r11 d0 r10 OccupantHash
+brne r11 1724793494 3
+add r0 r0 1
+move r12 r0
+brne r11 -983091249 3
+add r1 r1 1
+move r12 r1
+brne r11 -707307845 3
+add r2 r2 1
+move r12 r2
+brne r11 -1348105509 3
+add r3 r3 1
+move r12 r3
+brne r11 1758427767 3
+add r4 r4 1
+move r12 r4
+brne r11 -190236170 3
+add r5 r5 1
+move r12 r5
+brne r11 1830218956 3
+add r6 r6 1
+move r12 r6
+brne r11 1103972403 3
+add r7 r7 1
+move r12 r7
+brne r11 -916518678 3
+add r8 r8 1
+move r12 r8
+brne r11 -654790771 3
+add r9 r9 1
+move r12 r9
+bgt r14 r12 slotCycle
+move r14 r12
+move r15 r11
+j slotCycle
+checkStorage:
+l r13 d2 Setting
+bne r13 2 checkReady
+sleep 1
+j start
+checkReady:
+s db Setting 1724793494
+blt r0 3 notReady
+s db Setting -983091249
+blt r1 3 notReady
+s db Setting -707307845
+blt r2 3 notReady
+s db Setting -1348105509
+blt r3 3 notReady
+s db Setting 1758427767
+blt r4 3 notReady
+s db Setting -190236170
+blt r5 3 notReady
+s db Setting 1830218956
+blt r6 3 notReady
+s db Setting 1103972403
+blt r7 3 notReady
+s db Setting -916518678
+blt r8 3 notReady
+s db Setting -654790771
+blt r9 3 notReady
+s db Setting 0
+s d2 Setting 1
+s d1 Output 0
+j done
+notReady:
+l r13 d0 Quantity
+bne r13 100 done
+s d1 Output 1
+s d0 RequestHash r15
+jal waitDeviceOutput
+done:
+yield
+j start
+waitDeviceOutput:
+yield
+ls r13 d0 1 Occupied
+bgtz r13 waitDeviceOutput
+ls r13 d1 0 Occupied
+bgtz r13 waitDeviceOutput
+ls r13 d1 1 Occupied
+bgtz r13 waitDeviceOutput
+ls r13 d1 2 Occupied
+bgtz r13 waitDeviceOutput
+j ra

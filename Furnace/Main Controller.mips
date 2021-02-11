@@ -1,0 +1,135 @@
+alias Furnace d0
+alias IngotSelectionMemory d1
+alias TemparatureMemory d2
+alias PressureMemory d3
+alias SmeltingStateMemory d4
+
+alias ReagentsCount r0
+alias ExpectedReagents r1
+alias MinPressure r2
+alias MaxPressure r3
+alias MinTemparature r4
+alias MaxTemparature r5
+alias IngotTarget r6
+alias SmeltingState r7
+alias currentTemp r9
+alias currentPressure r10
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+start:
+l SmeltingState SmeltingStateMemory Setting
+bne SmeltingState SmeltLoadingFurnace done
+
+l IngotTarget IngotSelectionMemory Setting
+# Defaults
+move MinPressure 810
+move MaxPressure 3490
+move MinTemparature 1010
+move MaxTemparature 1890
+move ExpectedReagents 50
+brne IngotTarget ConstantanIngot 4
+move MinPressure 20010
+move MaxPressure 21090
+move ExpectedReagents 100
+brne IngotTarget ElectrumIngot 4
+move MinPressure 810
+move MaxPressure 2090
+move ExpectedReagents 100
+brne IngotTarget InvarIngot 6
+move MinPressure 18010
+move MaxPressure 19090
+move MinTemparature 1210
+move MaxTemparature 1490
+move ExpectedReagents 100
+brne IngotTarget SteelIngot 4
+move MinPressure 1010
+move MaxPressure 2090
+move ExpectedReagents 200
+brne IngotTarget SolderIngot 6
+move MinPressure 1010
+move MaxPressure 2090
+move MinTemparature 360
+move MaxTemparature 490
+move ExpectedReagents 100
+brne IngotTarget AstroloyIngot 4
+move MinPressure 30010
+move MaxPressure 31090
+move ExpectedReagents 200
+brne IngotTarget HastelloyIngot 6
+move MinPressure 25010
+move MaxPressure 26090
+move MinTemparature 960
+move MaxTemparature 990
+move ExpectedReagents 200
+brne IngotTarget InconelIngot 4
+move MinPressure 23600
+move MaxPressure 23990
+move ExpectedReagents 200
+brne IngotTarget StelliteIngot 6
+move MinPressure 10010
+move MaxPressure 11090
+move MinTemparature 1810
+move MaxTemparature 2090
+move ExpectedReagents 200
+brne IngotTarget WaspaloyIngot 6
+move MinPressure 50010
+move MaxPressure 51090
+move MinTemparature 1810
+move MaxTemparature 2090
+move ExpectedReagents 200
+
+s Furnace Open 0 #Start Ore Selection
+s PressureMemory Setting MaxPressure
+s TemparatureMemory Setting MaxTemparature
+s Furnace Lock 0 #Unlock the furnace/chute
+
+waitSmelt: #Wait while the reagents smelt
+yield
+l currentTemp Furnace Temperature
+l currentPressure Furnace Pressure
+s db Setting currentPressure
+blt currentTemp MinTemparature waitSmelt
+blt currentPressure MinPressure waitSmelt
+bgt currentTemp MaxTemparature waitSmelt
+bgt currentPressure MaxPressure waitSmelt
+l ReagentsCount Furnace Reagents
+beq ReagentsCount ExpectedReagents empty #Check Success
+j waitSmelt
+empty:
+s Furnace Lock 0
+s Furnace Open 1 #Open up the furnace
+sleep 10 #Sleep in case of fail
+l ReagentsCount Furnace Reagents #Check empty furnace
+beq ReagentsCount 0 reset
+yield
+j empty
+
+reset:
+s SmeltingStateMemory Setting SmeltVendorCheck
+s PressureMemory Setting 0
+s TemparatureMemory Setting 0
+
+done:
+yield
+j start

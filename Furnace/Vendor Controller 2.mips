@@ -1,0 +1,203 @@
+alias OreVendor d0
+alias PostVendorSorter d1
+alias SmeltingState d2
+alias LeastAmountMem d3
+alias LeastTypeMem d4
+
+alias CoalOreCounter r0
+alias CobaltOreCounter r1
+alias CopperOreCounter r2
+alias GoldOreCounter r3
+alias IronOreCounter r4
+alias LeadOreCounter r5
+alias NickelOreCounter r6
+alias SiliconOreCounter r7
+alias SilverOreCounter r8
+alias SteelIngotCounter r9
+
+# Min/Max Counter (Permanent)
+alias LargestCounterType r10
+alias SmallestCounterType r11
+
+# Min/Max Counter (Temporary)
+alias LargestCounterAmount r12
+alias SmallestCounterAmount r13
+
+# Increment Counter Aliases (Temporary)
+alias SlotIndex r12
+alias ReagentType r13
+alias SlotOccupied r14
+alias CurrentCounter r15
+
+alias VendorQuantity r13
+alias ExternalBusy r12
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+define SteelIngot -654790771
+
+define MinStorage 5
+define MaxStorage 10
+
+define SorterOutputFurnace 0
+define SorterOutputStorage 1
+
+s PostVendorSorter On 1
+s PostVendorSorter Mode 2
+s PostVendorSorter Lock 0
+
+# Reset ready state
+s SmeltingState Setting SmeltVendorCheck
+
+# Reset counters
+move CoalOreCounter 0
+move CobaltOreCounter 0
+move CopperOreCounter 0
+move GoldOreCounter 0
+move IronOreCounter 0
+move LeadOreCounter 0
+move NickelOreCounter 0
+move SiliconOreCounter 0
+move SilverOreCounter 0
+move SteelIngotCounter 0
+
+s OreVendor On 0
+
+# The first storage slot index is 2
+move SlotIndex 1
+slotCycle:
+add SlotIndex SlotIndex 1
+beq SlotIndex 102 start
+
+ls SlotOccupied OreVendor SlotIndex Occupied
+ls ReagentType OreVendor SlotIndex OccupantHash
+bgtzal SlotOccupied incrementCounter
+j slotCycle
+
+start:
+s OreVendor On 1
+
+# Wait for device input/output to be finished
+jal waitDeviceOutput
+
+# If smelting state 
+l ExternalBusy SmeltingState Setting
+bne ExternalBusy SmeltLoadingFurnace detectionCycle
+sleep 1
+j start
+
+detectionCycle:
+
+
+checkStorage:
+# If all counters match or exceed the minimum required amount
+# we set the ready memory to true
+s SmeltingState Setting SmeltVendorReady
+s PostVendorSorter Output SorterOutputFurnace
+j done
+
+notReady:
+# If there are empty slots, we can wait for them to be filled
+l VendorQuantity OreVendor Quantity
+bne VendorQuantity 100 done
+
+# Configure sorter to route to storage
+s PostVendorSorter Output SorterOutputStorage
+s OreVendor RequestHash LargestCounterType
+sleep 1
+jal waitDeviceOutput
+
+done:
+yield
+j start
+
+waitDeviceOutput:
+yield
+ls ExternalBusy OreVendor 1 Occupied
+bgtz ExternalBusy waitDeviceOutput
+j ra
+
+incrementCounter:
+brne ReagentType CoalOre 3
+add CoalOreCounter CoalOreCounter 1
+move CurrentCounter CoalOreCounter
+brne ReagentType CobaltOre 3
+add CobaltOreCounter CobaltOreCounter 1
+move CurrentCounter CobaltOreCounter
+brne ReagentType CopperOre 3
+add CopperOreCounter CopperOreCounter 1
+move CurrentCounter CopperOreCounter
+brne ReagentType GoldOre 3
+add GoldOreCounter GoldOreCounter 1
+move CurrentCounter GoldOreCounter
+brne ReagentType IronOre 3
+add IronOreCounter IronOreCounter 1
+move CurrentCounter IronOreCounter
+brne ReagentType LeadOre 3
+add LeadOreCounter LeadOreCounter 1
+move CurrentCounter LeadOreCounter
+brne ReagentType NickelOre 3
+add NickelOreCounter NickelOreCounter 1
+move CurrentCounter NickelOreCounter
+brne ReagentType SiliconOre 3
+add SiliconOreCounter SiliconOreCounter 1
+move CurrentCounter SiliconOreCounter
+brne ReagentType SilverOre 3
+add SilverOreCounter SilverOreCounter 1
+move CurrentCounter SilverOreCounter
+brne ReagentType SilverOre 3
+add SteelIngotCounter SteelIngotCounter 1
+move CurrentCounter SteelIngotCounter
+
+bgt LargestCounterAmount CurrentCounter ra
+move LargestCounterAmount CurrentCounter
+move LargestCounterType ReagentType
+j ra
+
+decrementCounter:
+brne ReagentType CoalOre 3
+sub CoalOreCounter CoalOreCounter 1
+move CurrentCounter CoalOreCounter
+brne ReagentType CobaltOre 3
+sub CobaltOreCounter CobaltOreCounter 1
+move CurrentCounter CobaltOreCounter
+brne ReagentType CopperOre 3
+sub CopperOreCounter CopperOreCounter 1
+move CurrentCounter CopperOreCounter
+brne ReagentType GoldOre 3
+sub GoldOreCounter GoldOreCounter 1
+move CurrentCounter GoldOreCounter
+brne ReagentType IronOre 3
+sub IronOreCounter IronOreCounter 1
+move CurrentCounter IronOreCounter
+brne ReagentType LeadOre 3
+sub LeadOreCounter LeadOreCounter 1
+move CurrentCounter LeadOreCounter
+brne ReagentType NickelOre 3
+sub NickelOreCounter NickelOreCounter 1
+move CurrentCounter NickelOreCounter
+brne ReagentType SiliconOre 3
+sub SiliconOreCounter SiliconOreCounter 1
+move CurrentCounter SiliconOreCounter
+brne ReagentType SilverOre 3
+sub SilverOreCounter SilverOreCounter 1
+move CurrentCounter SilverOreCounter
+brne ReagentType SilverOre 3
+sub SteelIngotCounter SteelIngotCounter 1
+move CurrentCounter SteelIngotCounter
+
+blt SmallestCounterAmount CurrentCounter ra
+move SmallestCounterAmount CurrentCounter
+move SmallestCounterType ReagentType
+j ra
