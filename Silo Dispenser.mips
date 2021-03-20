@@ -1,0 +1,25 @@
+alias silo d0
+alias mem d1
+
+alias busy r0
+alias output r1
+
+start:
+l output mem Setting
+beqz output done
+
+s silo Open 1
+jal waitDeviceOutput
+s silo Open 0
+s mem Setting 0
+
+done:
+yield
+j start
+
+
+waitDeviceOutput:
+yield
+ls busy silo 1 Occupied
+bgtz busy waitDeviceOutput
+j ra

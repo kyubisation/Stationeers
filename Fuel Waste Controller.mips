@@ -1,0 +1,77 @@
+alias level1Tank d0
+alias level1Pump d1
+alias level2Tank d2
+alias level2Pump d3
+alias alarm d4
+
+alias level1Pressure r0
+alias level1Temperature r1
+alias level2Pressure r2
+alias level2Temperature r3
+
+define MinTankPressure 10
+define EmergencyMinTankPressure 45000
+define MaxTankPressure 45000
+define MaxTemperature 293
+
+start:
+l level1Pressure level1Tank Pressure
+l level2Pressure level2Tank Pressure
+l level1Temperature level1Tank Temperature
+l level2Temperature level2Tank Temperature
+
+# If level 1 pressure exceeds max pressure,
+# vent into level 2
+bgtal level1Pressure MaxTankPressure emptyLevel1
+# If level 2 pressure is below min pressure,
+# vent level 1 into level 2
+bltal level2Pressure MinTankPressure emptyLevel1
+# If level 1 temparature is below threshold,
+# vent level 1 into level 2
+bltal level1Temperature MaxTemperature emptyLevel1
+# If level 2 temparature is below threshold,
+# vent into system
+bltal level2Temperature MaxTemperature emptyLevel2
+
+s alarm On 0
+blt level1Pressure MaxTankPressure done
+blt level2Pressure MaxTankPressure done
+s alarm On 1
+
+done:
+yield
+j start
+
+emptyLevel1:
+s level2Pump On 0
+s level1Pump On 1
+inner1Wait:
+yield
+# Read all data, in order for future checks
+l level1Pressure level1Tank Pressure
+l level2Pressure level2Tank Pressure
+l level1Temperature level1Tank Temperature
+l level2Temperature level2Tank Temperature
+# Escape the loop, if Level 2 Tank has a bigger
+# pressure than MaxTankPressure
+brgt level2Pressure MaxTankPressure 2
+bgt level1Pressure MinTankPressure inner1Wait
+# Disable pump
+s level1Pump On 0
+j ra
+
+emptyLevel2:
+s level1Pump On 0
+s level2Pump On 1
+inner2Wait:
+yield
+# Read all data, in order for future checks
+l level1Pressure level1Tank Pressure
+l level2Pressure level2Tank Pressure
+l level1Temperature level1Tank Temperature
+l level2Temperature level2Tank Temperature
+brgt level2Temperature MaxTemperature 2
+bgt level2Pressure MinTankPressure inner2Wait
+# Disable pump
+s level2Pump On 0
+j ra

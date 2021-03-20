@@ -1,12 +1,16 @@
 alias furnace d0
 alias tempMem d1
 alias pressureMem d2
+alias furnaceRoomPump d3
 alias currentTemp r0
 alias currentPressure r1
 alias maxTemp r2
 alias maxPressure r3
 alias ticks r4
 alias pressureDiff r5
+alias minPressure r6
+alias outputValue r7
+alias inputValue r8
 
 s furnace On 1
 
@@ -16,6 +20,7 @@ s furnace SettingInput 0
 l maxTemp tempMem Setting 
 l maxPressure pressureMem Setting 
 l currentPressure furnace Pressure
+sub minPressure maxPressure 1000
 
 bgt maxTemp 100 heat #If the memory is > 100 then we're in heating mode.
 
@@ -30,10 +35,12 @@ breq currentPressure 0 3
 s furnace SettingOutput 100
 j waitActive
 s furnace SettingOutput 0
+s furnaceRoomPump On 0
 
 j waitActive
 
 heat:
+s furnaceRoomPump On 1
 move ticks 0
 s furnace Activate 1
 yield
@@ -47,27 +54,35 @@ blt maxTemp 100 waitActive
 bgt currentPressure maxPressure vent #If pressure is too high, start outgassing
 s furnace SettingOutput 0
 
+blt currentPressure minPressure buildPressure
+
 bgt currentTemp maxTemp stopFuel #If temp is too high, stop fuel
-s furnace SettingInput 5
+jal calculateInput
 j heat
 
 vent:
 sub pressureDiff currentPressure maxPressure
-brlt pressureDiff 10000 3
-s furnace SettingOutput 80
-j stopFuel
-brlt pressureDiff 5000 3
-s furnace SettingOutput 50
-j stopFuel
-brlt pressureDiff 2000 3
-s furnace SettingOutput 30
-j stopFuel
-brlt pressureDiff 1000 3
-s furnace SettingOutput 20
-j stopFuel
-s furnace SettingOutput 10
+div outputValue pressureDiff 100
+max outputValue outputValue 50
+min outputValue outputValue 10
+s furnace SettingOutput outputValue
 j stopFuel #If we're venting, also stop fuel
+
+buildPressure:
+jal calculateInput
+j heat
 
 stopFuel:
 s furnace SettingInput 0
 j heat
+
+calculateInput:
+l currentPressure furnace Pressure
+s db Setting currentPressure
+sub pressureDiff currentPressure minPressure
+div inputValue pressureDiff 2000
+max inputValue inputValue 10
+min inputValue inputValue 1
+s db Setting inputValue
+s furnace SettingInput inputValue
+j ra
