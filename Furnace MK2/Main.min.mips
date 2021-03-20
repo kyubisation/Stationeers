@@ -1,0 +1,105 @@
+define -654790771 -654790771
+start:
+l r6 db Setting
+beq r6 3 checkSmeltingDone
+l r0 d2 Setting
+l r1 d3 Setting
+add r0 r0 r1
+blt r0 1 smeltingImpossible
+bgt r0 2 smeltingImpossible
+s d0 Setting 545937711
+s db Setting 1
+j checkSmeltStart
+smeltingImpossible:
+s d0 Setting -676435305
+s db Setting 0
+j done
+checkSmeltStart:
+l r2 d4 Setting
+bnez r2 startSmelting
+j done
+startSmelting:
+s db Setting 2
+l r3 d1 Setting
+brne r3 -404336834 2
+push -707307845
+brne r3 226410516 2
+push -1348105509
+brne r3 -1301215609 2
+push 1758427767
+brne r3 2134647745 2
+push -190236170
+brne r3 -1406385572 2
+push 1830218956
+brne r3 -290196476 2
+push 1103972403
+brne r3 -929742000 2
+push -916518678
+brne r3 1058547521 3
+push -707307845
+push 1830218956
+brne r3 502280180 3
+push -1348105509
+push -916518678
+brne r3 -297990285 3
+push 1758427767
+push 1830218956
+brne r3 -82508479 3
+push 1758427767
+push -190236170
+brne r3 -654790771 5
+push 1724793494
+push 1758427767
+push 1758427767
+push 1758427767
+brne r3 412924554 5
+push -654790771
+push -654790771
+push -707307845
+push -983091249
+brne r3 1579842814 5
+push -916518678
+push -916518678
+push 1830218956
+push -983091249
+brne r3 -787796599 5
+push -1348105509
+push -1348105509
+push 1830218956
+push -654790771
+brne r3 -1897868623 5
+push 1103972403
+push 1103972403
+push -916518678
+push -983091249
+brne r3 156348098 5
+push -190236170
+push -190236170
+push -916518678
+push 1830218956
+mul r8 sp 50
+loadReagent:
+beqz sp checkReagentReady
+pop r4
+s d2 Setting r4
+s d3 Setting r4
+waitOre:
+yield
+l r5 d2 Setting
+bnez r5 waitOre
+l r5 d3 Setting
+bnez r5 waitOre
+j loadReagent
+checkReagentReady:
+yield
+l r7 d5 Reagents
+bne r7 r8 checkReagentReady
+s db Setting 3
+j done
+checkSmeltingDone:
+l r7 d5 Reagents
+bnez r7 done
+s db Setting 0
+done:
+yield
+j start

@@ -1,0 +1,107 @@
+alias mainHousing d0
+alias nextIngotButton d1
+alias previousIngotButton d2
+
+alias ingotIndex r0
+alias ingotTarget r1
+alias previousButtonActive r2
+alias nextButtonActive r3
+alias smeltingState r4
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+define LastIndex 16
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+move ingotIndex 0
+
+start:
+
+l smeltingState mainHousing Setting
+blt smeltingState SmeltLoadingFurnace ready
+j done
+
+ready:
+l nextButtonActive nextIngotButton Setting
+bgtz nextButtonActive increment
+l previousButtonActive previousIngotButton Setting
+bgtz previousButtonActive decrement
+j indexChangeDone
+
+increment:
+beq ingotIndex LastIndex resetIndex
+add ingotIndex ingotIndex 1
+j indexChangeDone
+
+decrement:
+beq ingotIndex 0 toLastIndex
+sub ingotIndex ingotIndex 1
+j indexChangeDone
+
+resetIndex:
+move ingotIndex 0
+j indexChangeDone
+
+toLastIndex:
+move ingotIndex LastIndex
+
+indexChangeDone:
+
+mul ingotTarget ingotIndex 2
+add ingotTarget ingotTarget 1
+jr ingotTarget
+s db Setting CopperIngot
+j done
+s db Setting GoldIngot
+j done
+s db Setting IronIngot
+j done
+s db Setting LeadIngot
+j done
+s db Setting NickelIngot
+j done
+s db Setting SiliconIngot
+j done
+s db Setting SilverIngot
+j done
+s db Setting ConstantanIngot
+j done
+s db Setting ElectrumIngot
+j done
+s db Setting InvarIngot
+j done
+s db Setting SolderIngot
+j done
+s db Setting SteelIngot
+j done
+s db Setting AstroloyIngot
+j done
+s db Setting HastelloyIngot
+j done
+s db Setting InconelIngot
+j done
+s db Setting StelliteIngot
+j done
+s db Setting WaspaloyIngot
+
+done:
+yield
+j start

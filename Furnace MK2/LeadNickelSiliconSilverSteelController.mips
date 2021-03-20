@@ -1,0 +1,160 @@
+alias leadSilo d0
+alias nickelSilo d1
+alias siliconSilo d2
+alias silverSilo d3
+alias steelSilo d4
+alias selectionHousing d5
+
+alias currentState r0
+alias selectedIngot r1
+alias outputState r2
+alias reagentAmount r3
+
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+define SteelIngot -654790771
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define ReagentAvailable 1
+define ReagentUnknown 0
+define ReagentMissing -1
+
+start:
+l currentState db Setting
+blt currentState ReagentMissing outputReagent
+bgt currentState ReagentAvailable outputReagent
+
+# Check availability
+l selectedIngot selectionHousing Setting
+beq selectedIngot CopperIngot reagentUnknown
+beq selectedIngot GoldIngot reagentUnknown
+beq selectedIngot IronIngot reagentUnknown
+beq selectedIngot SteelIngot reagentUnknown
+brne selectedIngot LeadIngot 3
+l reagentAmount leadSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot NickelIngot 3
+l reagentAmount nickelSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot SiliconIngot 3
+l reagentAmount siliconSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot SilverIngot 3
+l reagentAmount silverSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot ConstantanIngot 3
+l reagentAmount nickelSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot ElectrumIngot 3
+l reagentAmount silverSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot InvarIngot 3
+l reagentAmount nickelSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot SolderIngot 3
+l reagentAmount leadSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot AstroloyIngot 3
+l reagentAmount steelSilo Quantity
+bge reagentAmount 2 hasAvailable
+brne selectedIngot HastelloyIngot 5
+l reagentAmount silverSilo Quantity
+blt reagentAmount 2 notAvailable
+l reagentAmount nickelSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot InconelIngot 5
+l reagentAmount nickelSilo Quantity
+beqz reagentAmount notAvailable
+l reagentAmount steelSilo Quantity
+beqz reagentAmount hasAvailable
+brne selectedIngot StelliteIngot 5
+l reagentAmount siliconSilo Quantity
+blt reagentAmount 2 notAvailable
+l reagentAmount silverSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot WaspaloyIngot 7
+l reagentAmount leadSilo Quantity
+blt reagentAmount 2 notAvailable
+l reagentAmount silverSilo Quantity
+beqz reagentAmount notAvailable
+l reagentAmount nickelSilo Quantity
+bgtz reagentAmount hasAvailable
+j notAvailable
+
+hasAvailable:
+s db Setting ReagentAvailable
+j done
+
+notAvailable:
+s db Setting ReagentMissing
+j done
+
+reagentUnknown:
+s db Setting ReagentUnknown
+j done
+
+outputReagent:
+brne currentState LeadOre 2
+s leadSilo Open 1
+brne currentState NickelOre 2
+s nickelSilo Open 1
+brne currentState SiliconOre 2
+s siliconSilo Open 1
+brne currentState SilverOre 2
+s silverSilo Open 1
+brne currentState SteelIngot 2
+s steelSilo Open 1
+beq currentState CoalOre markAsDone
+beq currentState CobaltOre markAsDone
+beq currentState CopperOre markAsDone
+beq currentState GoldOre markAsDone
+beq currentState IronOre markAsDone
+
+waitDeviceOutput:
+yield
+ls outputState leadSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState nickelSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState siliconSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState silverSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState steelSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+s leadSilo Open 0
+s nickelSilo Open 0
+s siliconSilo Open 0
+s silverSilo Open 0
+s steelSilo Open 0
+
+markAsDone:
+s db Setting 0
+
+done:
+yield
+j start

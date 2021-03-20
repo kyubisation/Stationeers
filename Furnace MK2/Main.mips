@@ -1,0 +1,169 @@
+alias smeltableMemory d0
+alias selectionHousing d1
+alias ore1Housing d2
+alias ore2Housing d3
+alias smeltButton d4
+alias furnace d5
+
+alias ore1State r0
+alias ore2State r1
+alias smeltButtonState r2
+alias ingotSelection r3
+alias reagent r4
+alias reagentOutputState r5
+alias smeltState r6
+alias reagentsCount r7
+alias expectedReagentsCount r8
+
+define ItemMiningBelt -676435305
+define StructureAdvancedFurnace 545937711
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+define SteelIngot -654790771
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+define SmeltFurnaceLoaded 3
+
+start:
+l smeltState db Setting
+beq smeltState SmeltFurnaceLoaded checkSmeltingDone
+
+l ore1State ore1Housing Setting
+l ore2State ore2Housing Setting
+add ore1State ore1State ore2State
+blt ore1State 1 smeltingImpossible
+bgt ore1State 2 smeltingImpossible
+
+s smeltableMemory Setting StructureAdvancedFurnace
+s db Setting SmeltVendorReady
+j checkSmeltStart
+
+smeltingImpossible:
+s smeltableMemory Setting ItemMiningBelt
+s db Setting SmeltVendorCheck
+j done
+
+checkSmeltStart:
+l smeltButtonState smeltButton Setting
+bnez smeltButtonState startSmelting
+j done
+
+startSmelting:
+s db Setting SmeltLoadingFurnace
+l ingotSelection selectionHousing Setting
+
+brne ingotSelection CopperIngot 2
+push CopperOre
+brne ingotSelection GoldIngot 2
+push GoldOre
+brne ingotSelection IronIngot 2
+push IronOre
+brne ingotSelection LeadIngot 2
+push LeadOre
+brne ingotSelection NickelIngot 2
+push NickelOre
+brne ingotSelection SiliconIngot 2
+push SiliconOre
+brne ingotSelection SilverIngot 2
+push SilverOre
+brne ingotSelection ConstantanIngot 3
+push CopperOre
+push NickelOre
+brne ingotSelection ElectrumIngot 3
+push GoldOre
+push SilverOre
+brne ingotSelection InvarIngot 3
+push IronOre
+push NickelOre
+brne ingotSelection SolderIngot 3
+push IronOre
+push LeadOre
+brne ingotSelection SteelIngot 5
+push CoalOre
+push IronOre
+push IronOre
+push IronOre
+brne ingotSelection AstroloyIngot 5
+push SteelIngot
+push SteelIngot
+push CopperOre
+push CobaltOre
+brne ingotSelection HastelloyIngot 5
+push SilverOre
+push SilverOre
+push NickelOre
+push CobaltOre
+brne ingotSelection InconelIngot 5
+push GoldOre
+push GoldOre
+push NickelOre
+push SteelIngot
+brne ingotSelection StelliteIngot 5
+push SiliconOre
+push SiliconOre
+push SilverOre
+push CobaltOre
+brne ingotSelection WaspaloyIngot 5
+push LeadOre
+push LeadOre
+push SilverOre
+push NickelOre
+
+mul expectedReagentsCount sp 50
+
+loadReagent:
+beqz sp checkReagentReady
+pop reagent
+s ore1Housing Setting reagent
+s ore2Housing Setting reagent
+waitOre:
+yield
+l reagentOutputState ore1Housing Setting
+bnez reagentOutputState waitOre
+l reagentOutputState ore2Housing Setting
+bnez reagentOutputState waitOre
+j loadReagent
+
+checkReagentReady:
+yield
+l reagentsCount furnace Reagents
+bne reagentsCount expectedReagentsCount checkReagentReady
+s db Setting SmeltFurnaceLoaded
+j done
+
+checkSmeltingDone:
+l reagentsCount furnace Reagents
+bnez reagentsCount done
+s db Setting SmeltVendorCheck
+
+done:
+yield
+j start

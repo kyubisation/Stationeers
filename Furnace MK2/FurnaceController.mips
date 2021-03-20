@@ -1,0 +1,159 @@
+alias mainHousing d0
+alias selectionHousing d1
+alias furnace d2
+alias gasMixer d3
+alias coolingValve d4
+alias wasteTank d5
+
+alias smeltState r0
+alias selectedIngot r1
+alias minTemp r2
+alias minPressure r3
+alias maxTemp r4
+alias maxPressure r5
+alias currentTemp r6
+alias currentPressure r7
+alias reagentsCount r8
+alias tankPressure r9
+alias outputValue r10
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define SmeltFurnaceLoaded 3
+
+s furnace On 1
+s gasMixer On 1
+
+start:
+s furnace SettingInput 0
+
+
+l smeltState mainHousing Setting
+bne smeltState SmeltFurnaceLoaded done
+
+l selectedIngot selectionHousing Setting
+move minPressure 100
+move maxPressure 100000
+move minTemp 600
+move maxTemp 100000
+
+brne selectedIngot IronIngot 2
+move minTemp 800
+brne selectedIngot LeadIngot 2
+move minTemp 400
+brne selectedIngot NickelIngot 2
+move minTemp 800
+brne selectedIngot SiliconIngot 2
+move minTemp 900
+brne selectedIngot ConstantanIngot 4
+move minPressure 20000
+move minTemp 1000
+move maxTemp 10000
+brne selectedIngot ElectrumIngot 3
+move minPressure 800
+move maxPressure 2400
+brne selectedIngot InvarIngot 5
+move minPressure 18000
+move maxPressure 20000
+move minTemp 1200
+move maxTemp 1500
+brne selectedIngot SolderIngot 4
+move minPressure 1000
+move minTemp 350
+move maxTemp 550
+brne selectedIngot SteelIngot 3
+move minPressure 1000
+move minTemp 900
+brne selectedIngot AstroloyIngot 4
+move minPressure 30000
+move maxPressure 40000
+move minTemp 1000
+brne selectedIngot HastelloyIngot 5
+move minPressure 25000
+move maxPressure 30000
+move minTemp 950
+move maxTemp 1000
+brne selectedIngot InconelIngot 3
+move minPressure 23500
+move maxPressure 24000
+brne selectedIngot StelliteIngot 4
+move minPressure 10000
+move maxPressure 20000
+move minTemp 1800
+brne selectedIngot WaspaloyIngot 5
+move minPressure 50000
+move minTemp 400
+move maxTemp 800
+
+# Add buffer
+add minTemp minTemp 5
+add minPressure minPressure 10
+
+checkState:
+yield
+l currentTemp furnace Temperature
+l currentPressure furnace Pressure
+ble currentTemp minTemp heat
+s furnace SettingInput 0
+bgt currentTemp maxTemp cool
+s coolingValve On 0
+ble currentPressure minPressure pressurize
+s furnace SettingInput 0
+bgt currentPressure maxPressure vent
+
+empty:
+s furnace Lock 0
+s furnace Open 1 #Open up the furnace
+sleep 10 #Sleep in case of fail
+l reagentsCount furnace Reagents #Check empty furnace
+beq reagentsCount 0 done
+yield
+j empty
+
+done:
+yield
+j start
+
+heat:
+s gasMixer Setting 0
+s furnace SettingInput 5
+yield
+s furnace Activate 1
+yield
+s furnace Activate 0
+j checkState
+
+cool:
+s coolingValve On 1
+j checkState
+
+pressurize:
+l tankPressure wasteTank Pressure
+blt tankPressure 1000 heat
+s gasMixer Setting 1
+s furnace SettingInput 10
+j checkState
+
+vent:
+sub outputValue currentPressure maxPressure
+div outputValue outputValue 100
+max outputValue outputValue 50
+min outputValue outputValue 10
+s furnace SettingOutput outputValue
+j checkState

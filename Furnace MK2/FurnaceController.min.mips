@@ -1,0 +1,106 @@
+s d2 On 1
+s d3 On 1
+start:
+s d2 SettingInput 0
+l r0 d0 Setting
+bne r0 3 done
+l r1 d1 Setting
+move r3 100
+move r5 100000
+move r2 600
+move r4 100000
+brne r1 -1301215609 2
+move r2 800
+brne r1 2134647745 2
+move r2 400
+brne r1 -1406385572 2
+move r2 800
+brne r1 -290196476 2
+move r2 900
+brne r1 1058547521 4
+move r3 20000
+move r2 1000
+move r4 10000
+brne r1 502280180 3
+move r3 800
+move r5 2400
+brne r1 -297990285 5
+move r3 18000
+move r5 20000
+move r2 1200
+move r4 1500
+brne r1 -82508479 4
+move r3 1000
+move r2 350
+move r4 550
+brne r1 -654790771 3
+move r3 1000
+move r2 900
+brne r1 412924554 4
+move r3 30000
+move r5 40000
+move r2 1000
+brne r1 1579842814 5
+move r3 25000
+move r5 30000
+move r2 950
+move r4 1000
+brne r1 -787796599 3
+move r3 23500
+move r5 24000
+brne r1 -1897868623 4
+move r3 10000
+move r5 20000
+move r2 1800
+brne r1 156348098 5
+move r3 50000
+move r2 400
+move r4 800
+add r2 r2 5
+add r3 r3 10
+checkState:
+yield
+l r6 d2 Temperature
+l r7 d2 Pressure
+ble r6 r2 heat
+s d2 SettingInput 0
+bgt r6 r4 cool
+s d4 On 0
+ble r7 r3 pressurize
+s d2 SettingInput 0
+bgt r7 r5 vent
+empty:
+s d2 Lock 0
+s d2 Open 1 #Open up the d2
+sleep 10 #Sleep in case of fail
+l r8 d2 Reagents #Check empty d2
+beq r8 0 done
+yield
+j empty
+done:
+yield
+j start
+heat:
+s d3 Setting 0
+s d2 SettingInput 5
+yield
+s d2 Activate 1
+yield
+s d2 Activate 0
+j checkState
+cool:
+s d4 On 1
+j checkState
+pressurize:
+l r9 d5 Pressure
+blt r9 1000 heat
+s d3 Setting 1
+s d2 SettingInput 10
+j checkState
+vent:
+sub r10 r7 r5
+div r10 r10 100
+max r10 r10 50
+min r10 r10 10
+s d2 SettingOutput r10
+j checkState

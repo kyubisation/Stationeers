@@ -1,0 +1,107 @@
+define -654790771 -654790771
+start:
+l r0 db Setting
+blt r0 -1 outputReagent
+bgt r0 1 outputReagent
+l r1 d5 Setting
+beq r1 -404336834 reagentUnknown
+beq r1 226410516 reagentUnknown
+beq r1 -1301215609 reagentUnknown
+beq r1 -654790771 reagentUnknown
+brne r1 2134647745 3
+l r3 d0 Quantity
+bgtz r3 hasAvailable
+brne r1 -1406385572 3
+l r3 d1 Quantity
+bgtz r3 hasAvailable
+brne r1 -290196476 3
+l r3 d2 Quantity
+bgtz r3 hasAvailable
+brne r1 -929742000 3
+l r3 d3 Quantity
+bgtz r3 hasAvailable
+brne r1 1058547521 3
+l r3 d1 Quantity
+bgtz r3 hasAvailable
+brne r1 502280180 3
+l r3 d3 Quantity
+bgtz r3 hasAvailable
+brne r1 -297990285 3
+l r3 d1 Quantity
+bgtz r3 hasAvailable
+brne r1 -82508479 3
+l r3 d0 Quantity
+bgtz r3 hasAvailable
+brne r1 412924554 3
+l r3 d4 Quantity
+bge r3 2 hasAvailable
+brne r1 1579842814 5
+l r3 d3 Quantity
+blt r3 2 notAvailable
+l r3 d1 Quantity
+bgtz r3 hasAvailable
+brne r1 -787796599 5
+l r3 d1 Quantity
+beqz r3 notAvailable
+l r3 d4 Quantity
+beqz r3 hasAvailable
+brne r1 -1897868623 5
+l r3 d2 Quantity
+blt r3 2 notAvailable
+l r3 d3 Quantity
+bgtz r3 hasAvailable
+brne r1 156348098 7
+l r3 d0 Quantity
+blt r3 2 notAvailable
+l r3 d3 Quantity
+beqz r3 notAvailable
+l r3 d1 Quantity
+bgtz r3 hasAvailable
+j notAvailable
+hasAvailable:
+s db Setting 1
+j done
+notAvailable:
+s db Setting -1
+j done
+reagentUnknown:
+s db Setting 0
+j done
+outputReagent:
+brne r0 -190236170 2
+s d0 Open 1
+brne r0 1830218956 2
+s d1 Open 1
+brne r0 1103972403 2
+s d2 Open 1
+brne r0 -916518678 2
+s d3 Open 1
+brne r0 -654790771 2
+s d4 Open 1
+beq r0 1724793494 markAsDone
+beq r0 -983091249 markAsDone
+beq r0 -707307845 markAsDone
+beq r0 -1348105509 markAsDone
+beq r0 1758427767 markAsDone
+waitDeviceOutput:
+yield
+ls r2 d0 1 Occupied
+bgtz r2 waitDeviceOutput
+ls r2 d1 1 Occupied
+bgtz r2 waitDeviceOutput
+ls r2 d2 1 Occupied
+bgtz r2 waitDeviceOutput
+ls r2 d3 1 Occupied
+bgtz r2 waitDeviceOutput
+ls r2 d4 1 Occupied
+bgtz r2 waitDeviceOutput
+s d0 Open 0
+s d1 Open 0
+s d2 Open 0
+s d3 Open 0
+s d4 Open 0
+markAsDone:
+s db Setting 0
+done:
+yield
+j start
