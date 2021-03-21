@@ -12,8 +12,7 @@ alias ingotSelection r3
 alias reagent r4
 alias reagentOutputState r5
 alias smeltState r6
-alias reagentsCount r7
-alias expectedReagentsCount r8
+alias reagentStackCount r7
 
 define ItemMiningBelt -676435305
 define StructureAdvancedFurnace 545937711
@@ -95,49 +94,47 @@ push SiliconOre
 brne ingotSelection SilverIngot 2
 push SilverOre
 brne ingotSelection ConstantanIngot 3
-push CopperOre
 push NickelOre
+push CopperOre
 brne ingotSelection ElectrumIngot 3
-push GoldOre
 push SilverOre
+push GoldOre
 brne ingotSelection InvarIngot 3
-push IronOre
 push NickelOre
+push IronOre
 brne ingotSelection SolderIngot 3
-push IronOre
 push LeadOre
+push IronOre
 brne ingotSelection SteelIngot 5
+push IronOre
+push IronOre
+push IronOre
 push CoalOre
-push IronOre
-push IronOre
-push IronOre
 brne ingotSelection AstroloyIngot 5
-push SteelIngot
-push SteelIngot
+push CobaltOre
 push CopperOre
-push CobaltOre
-brne ingotSelection HastelloyIngot 5
-push SilverOre
-push SilverOre
-push NickelOre
-push CobaltOre
-brne ingotSelection InconelIngot 5
-push GoldOre
-push GoldOre
-push NickelOre
 push SteelIngot
-brne ingotSelection StelliteIngot 5
-push SiliconOre
-push SiliconOre
-push SilverOre
+push SteelIngot
+brne ingotSelection HastelloyIngot 5
 push CobaltOre
-brne ingotSelection WaspaloyIngot 5
-push LeadOre
-push LeadOre
-push SilverOre
 push NickelOre
-
-mul expectedReagentsCount sp 50
+push SilverOre
+push SilverOre
+brne ingotSelection InconelIngot 5
+push SteelIngot
+push NickelOre
+push GoldOre
+push GoldOre
+brne ingotSelection StelliteIngot 5
+push CobaltOre
+push SilverOre
+push SiliconOre
+push SiliconOre
+brne ingotSelection WaspaloyIngot 5
+push NickelOre
+push SilverOre
+push LeadOre
+push LeadOre
 
 loadReagent:
 beqz sp checkReagentReady
@@ -147,21 +144,25 @@ s ore2Housing Setting reagent
 waitOre:
 yield
 l reagentOutputState ore1Housing Setting
-bnez reagentOutputState waitOre
+blt reagentOutputState -1 waitOre
+bgt reagentOutputState 1 waitOre
 l reagentOutputState ore2Housing Setting
-bnez reagentOutputState waitOre
+blt reagentOutputState -1 waitOre
+bgt reagentOutputState 1 waitOre
 j loadReagent
 
 checkReagentReady:
 yield
-l reagentsCount furnace Reagents
-bne reagentsCount expectedReagentsCount checkReagentReady
 s db Setting SmeltFurnaceLoaded
 j done
 
 checkSmeltingDone:
-l reagentsCount furnace Reagents
-bnez reagentsCount done
+yield
+l reagentStackCount furnace ExportCount
+beqz reagentStackCount checkSmeltingDone
+l reagentStackCount furnace Reagents
+bnez reagentStackCount checkSmeltingDone
+s furnace ClearMemory 1
 s db Setting SmeltVendorCheck
 
 done:

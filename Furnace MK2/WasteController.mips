@@ -1,0 +1,46 @@
+alias wasteTank d0
+alias coolingTank d1
+alias wasteOutPump d2
+alias coolingOutPump d3
+
+alias tankPressure r0
+alias tankTemp r1
+alias coolingTankPressure r2
+
+define MaxTankPressure 45000
+define MaxTemperature 293
+define CooledOverflowPressure 30000
+
+s wasteOutPump On 0
+s wasteOutPump Setting 100
+s coolingOutPump On 0
+s coolingOutPump Setting 100
+
+start:
+l tankPressure wasteTank Pressure
+l coolingTankPressure coolingTank Pressure
+bgt tankPressure MaxTankPressure ventWaste
+bgt tankPressure coolingTankPressure ventWaste
+s wasteOutPump On 0
+j checkCoolingTank
+
+ventWaste:
+s wasteOutPump On 1
+
+checkCoolingTank:
+l tankPressure coolingTank Pressure
+bgt tankPressure MaxTankPressure ventCooling
+l tankTemp coolingTank Temperature
+bgt tankTemp MaxTemperature stopVentCooling
+bgt tankPressure CooledOverflowPressure ventCooling
+
+stopVentCooling:
+s coolingOutPump On 0
+j done
+
+ventCooling:
+s coolingOutPump On 1
+
+done:
+yield
+j start

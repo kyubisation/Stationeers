@@ -36,48 +36,47 @@ push 1103972403
 brne r3 -929742000 2
 push -916518678
 brne r3 1058547521 3
-push -707307845
 push 1830218956
+push -707307845
 brne r3 502280180 3
-push -1348105509
 push -916518678
+push -1348105509
 brne r3 -297990285 3
-push 1758427767
 push 1830218956
+push 1758427767
 brne r3 -82508479 3
-push 1758427767
 push -190236170
+push 1758427767
 brne r3 -654790771 5
+push 1758427767
+push 1758427767
+push 1758427767
 push 1724793494
-push 1758427767
-push 1758427767
-push 1758427767
 brne r3 412924554 5
-push -654790771
-push -654790771
+push -983091249
 push -707307845
-push -983091249
-brne r3 1579842814 5
-push -916518678
-push -916518678
-push 1830218956
-push -983091249
-brne r3 -787796599 5
-push -1348105509
-push -1348105509
-push 1830218956
 push -654790771
-brne r3 -1897868623 5
-push 1103972403
-push 1103972403
-push -916518678
+push -654790771
+brne r3 1579842814 5
 push -983091249
-brne r3 156348098 5
-push -190236170
-push -190236170
-push -916518678
 push 1830218956
-mul r8 sp 50
+push -916518678
+push -916518678
+brne r3 -787796599 5
+push -654790771
+push 1830218956
+push -1348105509
+push -1348105509
+brne r3 -1897868623 5
+push -983091249
+push -916518678
+push 1103972403
+push 1103972403
+brne r3 156348098 5
+push 1830218956
+push -916518678
+push -190236170
+push -190236170
 loadReagent:
 beqz sp checkReagentReady
 pop r4
@@ -86,19 +85,23 @@ s d3 Setting r4
 waitOre:
 yield
 l r5 d2 Setting
-bnez r5 waitOre
+blt r5 -1 waitOre
+bgt r5 1 waitOre
 l r5 d3 Setting
-bnez r5 waitOre
+blt r5 -1 waitOre
+bgt r5 1 waitOre
 j loadReagent
 checkReagentReady:
 yield
-l r7 d5 Reagents
-bne r7 r8 checkReagentReady
 s db Setting 3
 j done
 checkSmeltingDone:
+yield
+l r7 d5 ExportCount
+beqz r7 checkSmeltingDone
 l r7 d5 Reagents
-bnez r7 done
+bnez r7 checkSmeltingDone
+s d5 ClearMemory 1
 s db Setting 0
 done:
 yield

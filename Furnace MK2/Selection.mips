@@ -1,12 +1,14 @@
 alias mainHousing d0
 alias nextIngotButton d1
 alias previousIngotButton d2
+alias furnaceHousing d3
 
 alias ingotIndex r0
 alias ingotTarget r1
 alias previousButtonActive r2
 alias nextButtonActive r3
 alias smeltingState r4
+alias currentSelection r5
 
 define CopperIngot -404336834
 define GoldIngot 226410516
@@ -68,39 +70,43 @@ indexChangeDone:
 mul ingotTarget ingotIndex 2
 add ingotTarget ingotTarget 1
 jr ingotTarget
-s db Setting CopperIngot
-j done
-s db Setting GoldIngot
-j done
-s db Setting IronIngot
-j done
-s db Setting LeadIngot
-j done
-s db Setting NickelIngot
-j done
-s db Setting SiliconIngot
-j done
-s db Setting SilverIngot
-j done
-s db Setting ConstantanIngot
-j done
-s db Setting ElectrumIngot
-j done
-s db Setting InvarIngot
-j done
-s db Setting SolderIngot
-j done
-s db Setting SteelIngot
-j done
-s db Setting AstroloyIngot
-j done
-s db Setting HastelloyIngot
-j done
-s db Setting InconelIngot
-j done
-s db Setting StelliteIngot
-j done
-s db Setting WaspaloyIngot
+move currentSelection CopperIngot
+j assignSelection
+move currentSelection GoldIngot
+j assignSelection
+move currentSelection IronIngot
+j assignSelection
+move currentSelection LeadIngot
+j assignSelection
+move currentSelection NickelIngot
+j assignSelection
+move currentSelection SiliconIngot
+j assignSelection
+move currentSelection SilverIngot
+j assignSelection
+move currentSelection ConstantanIngot
+j assignSelection
+move currentSelection ElectrumIngot
+j assignSelection
+move currentSelection InvarIngot
+j assignSelection
+move currentSelection SolderIngot
+j assignSelection
+move currentSelection SteelIngot
+j assignSelection
+move currentSelection AstroloyIngot
+j assignSelection
+move currentSelection HastelloyIngot
+j assignSelection
+move currentSelection InconelIngot
+j assignSelection
+move currentSelection StelliteIngot
+j assignSelection
+move currentSelection WaspaloyIngot
+
+assignSelection:
+s db Setting currentSelection
+s furnaceHousing Setting currentSelection
 
 done:
 yield

@@ -1,0 +1,53 @@
+alias fuelPump d0
+alias hotPressurePump d1
+alias coldPressurePump d2
+
+alias mode r0
+
+s fuelPump On 0
+s fuelPump Setting 5
+s hotPressurePump On 0
+s hotPressurePump Setting 100
+s coldPressurePump On 0
+s coldPressurePump Setting 100
+
+define Inactive 0
+define FuelMode 1
+define HotPressureMode 2
+define ColdPressureMode 3
+
+start:
+l mode db Setting
+beq mode Inactive deactivate
+beq mode FuelMode activateFuel
+beq mode HotPressureMode activateHotPressure
+beq mode ColdPressureMode activateColdPressure
+j done
+
+deactivate:
+s fuelPump On 0
+s hotPressurePump On 0
+s coldPressurePump On 0
+j done
+
+activateFuel:
+s hotPressurePump On 0
+s coldPressurePump On 0
+s fuelPump On 1
+j done
+
+activateHotPressure:
+s fuelPump On 0
+s coldPressurePump On 0
+s hotPressurePump On 1
+j done
+
+activateColdPressure:
+s fuelPump On 0
+s hotPressurePump On 0
+s coldPressurePump On 1
+j done
+
+done:
+yield
+j start
