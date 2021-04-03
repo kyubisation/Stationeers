@@ -1,8 +1,4 @@
-s d2 On 1
 s d2 Open 0
-s d2 Lock 0
-s d2 SettingInput 100
-s d1 Setting 0
 start:
 l r0 d0 Setting
 bne r0 3 done
@@ -61,17 +57,15 @@ move r4 800
 add r2 r2 5
 add r3 r3 10
 checkState:
-yield
+s d2 SettingOutput 0
+s d4 On 0
+s d3 On 0
 l r6 d2 Temperature
 l r7 d2 Pressure
+ble r7 r3 pressurize
+bgt r7 r5 vent
 ble r6 r2 heat
 bgt r6 r4 cool
-s d4 On 0
-checkPressure:
-ble r7 r3 pressurize
-s d1 Setting 0
-bgt r7 r5 vent
-s d2 SettingOutput 0
 l r11 d2 RecipeHash
 bne r11 r1 checkState
 empty:
@@ -87,36 +81,46 @@ s d2 Open 0
 yield
 j start
 heat:
-s d1 Setting 1
+s d3 On 0
+yield
+l r7 d2 Pressure
+bgt r7 45000 vent
+s d1 On 1
 sleep 1
-s d1 Setting 0
+s d1 On 0
 s d2 Activate 1
 yield
 s d2 Activate 0
+l r6 d2 Temperature
+ble r6 r2 heat
 j checkState
 cool:
+yield
 s d4 On 1
-j checkPressure
+s d2 SettingOutput 80
+s d3 Setting 80
+s d3 On 1
+l r6 d2 Temperature
+bgt r6 r4 cool
+j checkState
 pressurize:
-s d2 SettingOutput 0
+yield
 sub r12 r3 r7
 bgt r12 10000 heat
-bgt r6 r4 coldPressurize
-j hotPressurize
-coldPressurize:
-l r9 d3 Pressure
-blt r9 1000 hotPressurize
-s d1 Setting 3
-j checkState
-hotPressurize:
 l r9 d5 Pressure
-blt r9 1000 heat
-s d1 Setting 2
+ble r9 100 heat
+s d3 Setting 95
+s d3 On 1
+l r7 d2 Pressure
+ble r7 r3 pressurize
 j checkState
 vent:
+yield
 sub r10 r7 r5
 div r10 r10 100
 max r10 r10 50
 min r10 r10 10
 s d2 SettingOutput r10
+l r7 d2 Pressure
+bgt r7 r5 vent
 j checkState
