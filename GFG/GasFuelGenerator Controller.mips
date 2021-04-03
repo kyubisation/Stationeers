@@ -1,0 +1,82 @@
+alias gasSensor d0
+alias powerSource d1
+alias coolerMemory d2
+alias heater d3
+alias gfg1 d4
+alias gfg2 d5
+alias icHousing db
+
+alias roomTemperature r1 # K
+alias roomPressure r2 # kPA
+alias powerPercentage r3 # %
+
+define lowThreshold 0.30 # %
+define lowerThreshold 0.50 # %
+define higherThreshold 0.80 # %
+define highThreshold 0.90 # %
+define roomMinTemp 278 # K
+define roomMaxTemp 293 # K
+define roomMinPressure 20 # kPA
+
+start:
+yield
+l powerPercentage powerSource Setting
+l roomTemperature gasSensor Temperature
+l roomPressure gasSensor Pressure
+s icHousing Setting roomTemperature
+
+blt roomPressure roomMinPressure lowPressure
+blt roomTemperature roomMinTemp cold
+bgt roomTemperature roomMaxTemp hot
+s heater On 0
+s coolerMemory Setting 0
+
+ble powerPercentage lowThreshold low
+ble powerPercentage lowerThreshold lower
+bge powerPercentage highThreshold high
+bge powerPercentage higherThreshold higher
+
+j start
+
+lowPressure:
+s gfg1 On 0
+s gfg2 On 0
+j start
+
+cold:
+s gfg1 On 0
+s gfg2 On 0
+s heater On 1
+s coolerMemory Setting 0
+j start
+
+hot:
+s gfg1 On 0
+s gfg2 On 0
+s heater On 0
+s coolerMemory Setting 1
+j start
+
+low:
+# turn on both
+s gfg1 On 1
+s gfg2 On 1
+j start
+
+lower:
+# turn on primary engine
+s gfg1 On 1
+s gfg2 On 0
+j start
+
+higher:
+# turn off secondary engine
+s gfg1 On 1
+s gfg2 On 0
+j start
+
+high:
+# turn off both
+s gfg1 On 0
+s gfg2 On 0
+j start

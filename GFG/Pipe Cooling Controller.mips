@@ -1,0 +1,25 @@
+alias gasSensor d0
+alias pipeValve d1
+
+alias roomTemperature r1
+
+define minRoomTemperature 290
+define maxRoomTemperature 310
+
+start:
+l roomTemperature gasSensor Temperature
+
+ble roomTemperature minRoomTemperature cold
+bge roomTemperature maxRoomTemperature hot
+yield
+j start
+
+hot:
+s pipeValve On 1
+yield
+j start
+
+cold:
+s pipeValve On 0
+yield
+j start
