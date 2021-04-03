@@ -90,7 +90,7 @@ brne selectedIngot InconelIngot 5
 l reagentAmount nickelSilo Quantity
 beqz reagentAmount notAvailable
 l reagentAmount steelSilo Quantity
-beqz reagentAmount hasAvailable
+bgtz reagentAmount hasAvailable
 brne selectedIngot StelliteIngot 5
 l reagentAmount siliconSilo Quantity
 blt reagentAmount 2 notAvailable

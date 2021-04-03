@@ -1,7 +1,7 @@
 alias mainHousing d0
-alias furnaceInputHousing d1
+alias fuelPump d1
 alias furnace d2
-alias coolingWasteTank d3
+alias wastePump d3
 alias coolingValve d4
 alias wasteTank d5
 
@@ -39,16 +39,9 @@ define WaspaloyIngot 156348098
 
 define SmeltFurnaceLoaded 3
 
-define Inactive 0
-define FuelMode 1
-define HotPressureMode 2
-define ColdPressureMode 3
+define MaxTankPressure 45000
 
-s furnace On 1
 s furnace Open 0
-s furnace Lock 0
-s furnace SettingInput 100
-s furnaceInputHousing Setting Inactive
 
 start:
 l smeltState mainHousing Setting
@@ -113,18 +106,15 @@ add minTemp minTemp 5
 add minPressure minPressure 10
 
 checkState:
-yield
+s furnace SettingOutput 0
+s coolingValve On 0
+s wastePump On 0
 l currentTemp furnace Temperature
 l currentPressure furnace Pressure
+ble currentPressure minPressure pressurize
+bgt currentPressure maxPressure vent
 ble currentTemp minTemp heat
 bgt currentTemp maxTemp cool
-s coolingValve On 0
-
-checkPressure:
-ble currentPressure minPressure pressurize
-s furnaceInputHousing Setting Inactive
-bgt currentPressure maxPressure vent
-s furnace SettingOutput 0
 l recipeHash furnace RecipeHash
 bne recipeHash selectedIngot checkState
 
@@ -143,42 +133,49 @@ yield
 j start
 
 heat:
+s wastePump On 0
+yield
+l currentPressure furnace Pressure
 bgt currentPressure MaxTankPressure vent
-s furnaceInputHousing Setting FuelMode
+s fuelPump On 1
 sleep 1
-s furnaceInputHousing Setting Inactive
+s fuelPump On 0
 s furnace Activate 1
 yield
 s furnace Activate 0
+l currentTemp furnace Temperature
+ble currentTemp minTemp heat
 j checkState
 
 cool:
+yield
 s coolingValve On 1
-j checkPressure
-
-pressurize:
-s furnace SettingOutput 0
-sub pressureDiff minPressure currentPressure
-bgt pressureDiff 10000 heat
-bgt currentTemp maxTemp coldPressurize
-j hotPressurize
-
-coldPressurize:
-l tankPressure coolingWasteTank Pressure
-blt tankPressure 100 hotPressurize
-s furnaceInputHousing Setting ColdPressureMode
+s furnace SettingOutput 80
+s wastePump Setting 80
+s wastePump On 1
+l currentTemp furnace Temperature
+bgt currentTemp maxTemp cool
 j checkState
 
-hotPressurize:
+pressurize:
+yield
+sub pressureDiff minPressure currentPressure
+bgt pressureDiff 10000 heat
 l tankPressure wasteTank Pressure
-blt tankPressure 100 heat
-s furnaceInputHousing Setting HotPressureMode
+ble tankPressure 100 heat
+s wastePump Setting 95
+s wastePump On 1
+l currentPressure furnace Pressure
+ble currentPressure minPressure pressurize
 j checkState
 
 vent:
+yield
 sub outputValue currentPressure maxPressure
 div outputValue outputValue 100
 max outputValue outputValue 50
 min outputValue outputValue 10
 s furnace SettingOutput outputValue
+l currentPressure furnace Pressure
+bgt currentPressure maxPressure vent
 j checkState

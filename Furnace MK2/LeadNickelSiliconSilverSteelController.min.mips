@@ -44,7 +44,7 @@ brne r1 -787796599 5
 l r3 d1 Quantity
 beqz r3 notAvailable
 l r3 d4 Quantity
-beqz r3 hasAvailable
+bgtz r3 hasAvailable
 brne r1 -1897868623 5
 l r3 d2 Quantity
 blt r3 2 notAvailable

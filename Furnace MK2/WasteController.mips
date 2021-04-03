@@ -2,14 +2,17 @@ alias wasteTank d0
 alias coolingTank d1
 alias wasteOutPump d2
 alias coolingOutPump d3
+alias fuelPump d4
+alias furnace d5
 
 alias tankPressure r0
 alias tankTemp r1
-alias coolingTankPressure r2
+alias importCount r2
 
 define MaxTankPressure 45000
 define MaxTemperature 293
-define CooledOverflowPressure 30000
+define MaxFurnacePressure 40000
+define OverflowPressure 12000
 
 s wasteOutPump On 0
 s wasteOutPump Setting 100
@@ -17,10 +20,18 @@ s coolingOutPump On 0
 s coolingOutPump Setting 100
 
 start:
+l importCount furnace ImportCount
+bnez importCount checkWasteTank
+l tankPressure furnace Pressure
+ble tankPressure MaxFurnacePressure checkWasteTank
+
+s furnace SettingOutput 95
+sleep 1
+s furnace SettingOutput 0
+
+checkWasteTank:
 l tankPressure wasteTank Pressure
-l coolingTankPressure coolingTank Pressure
-bgt tankPressure MaxTankPressure ventWaste
-bgt tankPressure coolingTankPressure ventWaste
+bgt tankPressure OverflowPressure ventWaste
 s wasteOutPump On 0
 j checkCoolingTank
 
@@ -32,7 +43,7 @@ l tankPressure coolingTank Pressure
 bgt tankPressure MaxTankPressure ventCooling
 l tankTemp coolingTank Temperature
 bgt tankTemp MaxTemperature stopVentCooling
-bgt tankPressure CooledOverflowPressure ventCooling
+j ventCooling
 
 stopVentCooling:
 s coolingOutPump On 0
