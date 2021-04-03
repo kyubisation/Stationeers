@@ -1,0 +1,26 @@
+alias unloader1 d0
+alias printer1 d1
+alias stacker1 d2
+alias unloader2 d3
+alias printer2 d4
+alias stacker2 d5
+
+alias state r0
+
+checkPrinter1:
+
+l state printer1 On
+s unloader1 On state
+bdns stacker1 checkPrinter2
+s stacker1 On state
+
+checkPrinter2:
+
+l state printer2 On
+s unloader2 On state
+bdns stacker2 done
+s stacker2 On state
+
+done:
+yield
+j checkPrinter1
