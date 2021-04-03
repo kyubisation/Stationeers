@@ -1,14 +1,15 @@
-alias filter d0
+alias mixer d0
 alias tank d1
 alias canisterPump d3
 alias canisterStorage d4
-alias wasteTank d5
+alias h2Tank d5
 
 alias canisterId r0
-alias targetPressure r1
+alias targetPressure r0
 alias canisterAvailable r2
 alias canisterPressure r3
 alias tankPressure r4
+alias h2TankPressure r5
 
 # Max pipe pressure is 60.795MPa
 # Units are KPa
@@ -22,17 +23,17 @@ define SmartCanisterId -668314371
 
 start:
 
-# Activate filter if below MaxTankPressure
-# Deactivate filter if above MaxTankPressure
-# or below MinWastePressure
+# Activate mixer if below MaxTankPressure
+# Deactivate mixer if above MaxTankPressure
+# or above H2 tank pressure
 l tankPressure tank Pressure
 ble MaxTankPressure tankPressure disableTank
-l tankPressure wasteTank Pressure
-ble tankPressure MinWastePressure disableTank
-s filter On 1
+l h2TankPressure h2Tank Pressure
+ble h2TankPressure tankPressure disableTank
+s mixer On 1
 j postTank
 disableTank:
-s filter On 0
+s mixer On 0
 postTank:
 
 # Fill canister, if available
