@@ -1,0 +1,71 @@
+alias command d0
+alias returnlever d1
+alias launchbutton d2
+alias oreSilo d3
+
+alias tmp r0
+
+define LAUNCH 1
+define TRAVEL 2
+define WAITING 4
+define RETURN 5
+define HOME 6
+
+start:
+yield
+l tmp launchbutton Setting
+beqz tmp start
+
+#button has been pressed
+l tmp command Fuel
+# if not enough fuel, skip to start
+blt tmp 1000 start
+
+s command Activate LAUNCH
+
+travel:
+yield
+l tmp command Mode
+beq tmp TRAVEL travel
+
+#have arrived so activate collectors
+sb -1446002463 Activate 1
+sb 74521920 Activate 1
+sb -2027419821 Activate 1
+
+mine:
+yield
+l tmp command Fuel
+ble tmp 600 return
+l tmp returnlever Setting
+beq tmp 1 return
+l tmp command CollectableGoods
+bnez tmp mine
+
+# finished mining
+# reset and do another travel:
+s command Activate 0
+yield
+s command Activate TRAVEL
+j travel
+
+return:
+s command Activate RETURN
+
+returning:
+yield
+l tmp command Mode
+beq tmp RETURN returning
+
+# returned, dump cargo:
+s oreSilo Open 1
+
+unloading:
+yield
+l tmp oreSilo ImportCount
+l r1 oreSilo ExportCount
+blt tmp r1 unloading
+
+s oreSilo ClearMemory 1
+
+j start
