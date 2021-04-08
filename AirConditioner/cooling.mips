@@ -1,0 +1,49 @@
+alias pipeSensor d0
+alias activeVent d1
+alias airConditioner1 d2
+alias airConditioner2 d3
+alias airSensor d4
+alias housing db
+
+alias pressure r0
+alias temperature r1
+
+define minPressure 200
+define maxPressure 800
+define minTemperature 293
+define maxTemperature 298
+
+start:
+l pressure pipeSensor Pressure
+l temperature airSensor Temperature
+s housing Setting temperature
+
+bltal temperature minTemperature conditionersOff
+bgtal temperature maxTemperature conditionersOn
+
+bgtal pressure maxPressure ventOff
+bltal pressure minPressure ventOn
+
+j done
+
+conditionersOn:
+s airConditioner1 On 1
+s airConditioner2 On 1
+j ra
+
+conditionersOff:
+s airConditioner1 On 0
+s airConditioner2 On 0
+j ra
+
+ventOff:
+s activeVent On 0
+j ra
+
+ventOn:
+s activeVent On 1
+j ra
+
+done:
+yield
+j start
