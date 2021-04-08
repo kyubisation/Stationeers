@@ -1,0 +1,31 @@
+alias Sensor d0
+
+# writing horizontal and vertical through batch write
+define SolarPanel -2045627372
+define SolarPanelDual -539224550
+
+define SolarPanelHeavy -934345724
+define SolarPanelHeavyDual -1545574413
+
+horizontal:
+s Sensor Mode 1 # Horizontal
+yield
+l r0 Sensor SolarAngle
+mul r0 r0 -1
+sb SolarPanel Horizontal r0
+sb SolarPanelDual Horizontal r0
+sb SolarPanelHeavy Horizontal r0
+sb SolarPanelHeavyDual Horizontal r0
+
+vertical:
+s Sensor Mode 0 # Vertical
+yield
+l r0 Sensor SolarAngle
+div r0 r0 1.5
+sub r0 50 r0
+sb SolarPanel Vertical r0
+sb SolarPanelDual Vertical r0
+sb SolarPanelHeavy Vertical r0
+sb SolarPanelHeavyDual Vertical r0
+
+j horizontal
