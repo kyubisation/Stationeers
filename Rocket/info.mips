@@ -1,0 +1,19 @@
+alias command d0
+alias mode d1
+alias activate d2
+alias fuel d3
+
+alias tmp r0
+
+start:
+l tmp command Mode
+s mode Setting tmp
+
+l tmp command Activate
+s activate Setting tmp
+
+l tmp command Fuel
+s fuel Setting tmp
+
+yield
+j start

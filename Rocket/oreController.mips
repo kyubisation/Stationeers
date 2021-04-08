@@ -1,0 +1,37 @@
+alias command d0
+alias silo d1
+alias quantity d2
+alias unload d3
+
+alias tmp r0
+
+start:
+l tmp command Mode
+s mode Setting tmp
+
+l tmp silo Quantity
+s quantity Setting tmp
+
+# check unload
+l tmp returnlever Setting
+beq tmp 1 unload
+
+yield
+j start
+
+unload:
+s silo Open 1
+yield
+
+unloading:
+l tmp silo ExportCount
+l r1 silo ImportCount
+
+# check if all exported
+blt tmp r1 unloading
+
+s silo ClearMemory 1
+yield
+s silo ClearMemory 0
+
+j start
