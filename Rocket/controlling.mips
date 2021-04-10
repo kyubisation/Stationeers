@@ -5,6 +5,7 @@ alias housing db
 
 alias tmp r0
 
+define RESET 0
 define LAUNCH 1
 define TRAVEL 2
 define WAITING 4
@@ -62,7 +63,7 @@ bnez tmp mine
 
 # finished mining
 # reset and do another travel:
-s command Activate 0
+s command Activate RESET
 yield
 s command Activate TRAVEL
 j travel

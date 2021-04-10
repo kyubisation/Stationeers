@@ -7,7 +7,6 @@ alias tmp r0
 
 start:
 #l tmp command Mode
-#s mode Setting tmp
 
 l tmp silo Quantity
 s quantity Setting tmp
@@ -16,22 +15,11 @@ s quantity Setting tmp
 l tmp unload Setting
 beq tmp 1 unload
 
+s silo Open 0
 yield
 j start
 
 unload:
 s silo Open 1
 yield
-
-unloading:
-l tmp silo ExportCount
-l r1 silo ImportCount
-
-# check if all exported
-blt tmp r1 unloading
-
-s silo ClearMemory 1
-yield
-s silo ClearMemory 0
-
 j start
