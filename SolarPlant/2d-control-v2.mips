@@ -1,0 +1,80 @@
+# Devices
+alias DaylightSensor d0  # Daylight sensor
+alias Status db   # PIC socket output
+
+# Registers
+alias Angle r0    # Solar vert. angle 0..180..0
+alias PosV r1     # Panel vert. setting 0..100
+alias PosH r2     # Panel horiz. setting -90..270
+alias Gain r4     # Panel gain in watts
+alias Daytime r5  # Night indicator
+
+# Batch Reading & Writing from this:
+define SolarPanel -1545574413
+# HashCodes for Solar Panels (dual = power and data on oposite side of solar panel stand):
+# you will mostly want to use "SolarPanelHeavyDual" as heavys do not get destroyed by sandstorm
+# Important: Power port pointing to sunset (270°), dataport to sunrise (90°)!
+# SolarPanelBasic: -2045627372
+# SolarPanelBasicDual: -539224550
+# SolarPanelHeavy: -934345724
+# SolarPanelHeavyDual: -1545574413
+
+
+# -------------------------------------------------
+#  Main Loop
+# -------------------------------------------------
+main:
+l Angle DaylightSensor Vertical # get vert. sun angle
+l PosH DaylightSensor Horizontal  # get horiz. sun angle
+lb Gain SolarPanel Setting Maximum
+
+# recalculate horizontal angle to -90..270 range
+# so the panel does its spinamathing at midnight
+# instead of sunset
+bgt PosH 0 vertical    # skip if H Angle > 0
+bge PosH -90 vertical  # skip if H Angle >= -90
+add PosH PosH 360      # else add 360
+
+vertical:
+# clamp the vertical angle within trackable range
+# calculate only when we can track
+ble Angle 75 calculate
+move PosV 0
+j daycheck
+
+calculate:
+# calculate vertical tracking setting
+# sensor angle is in 90..0..90 range
+# 50-(angle/1.5) gives just the right number
+div PosV Angle 1.5
+sub PosV 50 PosV
+
+daycheck:
+bgtz Gain day         # getting power, day
+ble PosH -2 night     # h angle <= -1 = night
+bge PosH 181.5 night  # h angle > 181.5 = night
+
+day:
+move Daytime 1        # day
+j write
+
+night:
+move Daytime 0        # night
+
+write:
+s Status Setting Daytime # write out status
+beqz Daytime reset    # reset panel at night
+
+sb SolarPanel Horizontal PosH # adjust panel horizontal
+sb SolarPanel Vertical PosV # adjust panel vertical
+j sleep               # all done
+
+reset:
+sb SolarPanel Horizontal -2 # reset panel horizontal
+sb SolarPanel Vertical 0 # reset panel vertical
+
+sleep:
+yield                 # take a 500ms nap
+j main                # loop back
+
+# -------------------------------------------------
