@@ -1,0 +1,111 @@
+##### SYSTEM VARIABLES #####
+define SetPoint 293 #Not used if SP-Device is set
+define Kp 0.05 #Aprox MaxOutput/SP
+define Ti 20
+define Td 0
+define MinOutput 0
+define MaxOutput 100
+define FilterTicks 5 #SensorFilter
+# Direct Mode => 1
+# Reverse Mode => -1
+define RegulatorMode 1
+define SPDeviceMultiplier 1
+j Setup
+##### DEVICE VARIABLES #####
+LoadSensorValue:
+l InputValue Sensor Temperature
+j Filter
+SetActuator:
+s Actuator Setting ProcessValue
+j Loop
+LoadSP:
+l SP SPDevice Setting
+j SPMul
+LoadSleepToggle:
+l OnState SleepToggle Setting
+beqz OnState SetOff
+j LoadSensorValue
+##### CODE #####
+Setup:
+alias Sensor d0
+alias Actuator d1
+alias SleepToggle d2
+alias SPDevice d3
+define TimeStep 0.5
+alias InitializedDerivative r1
+alias dI r3
+alias InputValue r4
+alias e r5
+alias OnState r6
+alias ProcessValue r7
+alias de r8
+alias iCalc r9
+alias pCalc r10
+alias dCalc r11
+alias FilterCounter r12
+alias FilterSum r13
+alias FilterReduce r14
+alias FilterHoldValue r15
+alias SP r16
+alias PreviousE r17
+alias eiValue r0
+move SP SetPoint
+Loop:
+yield
+bdns SleepToggle LoadSensorValue
+j LoadSleepToggle
+Filter:
+beqz FilterTicks SPCalc
+move FilterHoldValue InputValue
+bge FilterCounter FilterTicks ReduceFilter
+add FilterCounter FilterCounter 1
+j FilterCalculate
+ReduceFilter:
+div FilterReduce FilterSum FilterCounter
+sub FilterSum FilterSum FilterReduce
+FilterCalculate:
+add InputValue InputValue FilterSum
+div InputValue InputValue FilterCounter
+add FilterSum FilterSum FilterHoldValue
+SPCalc:
+bdns SPDevice Calculate
+j LoadSP
+SPMul:
+mul SP SP SPDeviceMultiplier
+Calculate:
+sub e InputValue SP
+mul e e RegulatorMode
+bgtz InitializedDerivative Proportional
+move InitializedDerivative 1
+move PreviousE e
+Proportional:
+mul pCalc Kp e
+Integrator:
+beqz Ti NoIntegral
+div iCalc pCalc Ti
+add dI dI iCalc
+j Derivative
+NoIntegral:
+move dI 0
+Derivative:
+sub de e PreviousE
+div dCalc de TimeStep
+mul dCalc dCalc Kp
+mul dCalc dCalc Td
+move PreviousE e
+Add:
+add ProcessValue pCalc dI
+add ProcessValue ProcessValue dCalc
+Limits:
+min dI MaxOutput dI
+max dI MinOutput dI
+min ProcessValue MaxOutput ProcessValue
+max ProcessValue MinOutput ProcessValue
+SetState:
+s db Setting ProcessValue
+bdns Actuator Loop
+j SetActuator
+SetOff:
+move ProcessValue MinOutput
+j SetState
+End:
