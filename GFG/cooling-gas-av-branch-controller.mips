@@ -1,0 +1,13 @@
+alias mirror d0
+alias State r0
+alias data r1
+
+define threshold 0.5
+
+Loop:
+l data mirror Setting
+sgt State data threshold
+sb -1129453144 Mode 1
+sb -1129453144 On State
+s db Setting State
+j Loop

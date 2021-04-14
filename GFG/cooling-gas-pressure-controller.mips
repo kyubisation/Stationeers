@@ -1,0 +1,25 @@
+alias TempSensor d0
+alias PresSensor d1
+
+alias temp r0
+alias pressure r1
+alias currentTemp r2
+
+define tempLimit1 273
+define PresLimit1 50000
+define PresLimit2 40000
+Loop:
+yield
+l temp TempSensor Temperature
+l pressure PresSensor Pressure
+bgt temp tempLimit1 Off
+bgt pressure PresLimit1 Off
+bgt PresLimit2 pressure TurnOn
+l currentTemp PresSensor Temperature
+bgt temp currentTemp Off
+TurnOn:
+s db Setting 1
+j Loop
+Off:
+s db Setting 0
+j Loop
