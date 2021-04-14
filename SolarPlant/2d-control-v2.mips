@@ -19,14 +19,13 @@ define SolarPanel -1545574413
 # SolarPanelHeavy: -934345724
 # SolarPanelHeavyDual: -1545574413
 
-
 # -------------------------------------------------
 #  Main Loop
 # -------------------------------------------------
 main:
 l Angle DaylightSensor Vertical # get vert. sun angle
 l PosH DaylightSensor Horizontal  # get horiz. sun angle
-lb Gain SolarPanel Setting Maximum
+lb Gain SolarPanel Charge Maximum
 
 # recalculate horizontal angle to -90..270 range
 # so the panel does its spinamathing at midnight
@@ -70,11 +69,10 @@ sb SolarPanel Vertical PosV # adjust panel vertical
 j sleep               # all done
 
 reset:
-sb SolarPanel Horizontal -2 # reset panel horizontal
+sb SolarPanel Horizontal -90 # reset panel horizontal
 sb SolarPanel Vertical 0 # reset panel vertical
 
 sleep:
 yield                 # take a 500ms nap
 j main                # loop back
-
 # -------------------------------------------------
