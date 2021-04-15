@@ -1,0 +1,13 @@
+alias Switch d0
+alias Generator d1
+alias CoolingPump d2
+alias FuelPump d3
+
+alias value r0
+Loop:
+l value Switch Setting
+s Generator On value
+s CoolingPump On value
+s FuelPump On value
+s db Setting value
+j Loop

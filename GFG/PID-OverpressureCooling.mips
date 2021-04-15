@@ -1,0 +1,27 @@
+alias Sensor d0
+alias Vent1 d1
+alias Vent2 d2
+alias Vent3 d3
+
+alias value r0
+alias state r1
+
+#define AVhash -1129453144
+#sb AVhash Mode 1
+
+s Vent1 Mode 1
+s Vent2 Mode 1
+s Vent3 Mode 1
+
+Loop:
+yield
+l value Sensor Pressure
+sgt state value 140
+#sb AVhash On state
+sgt state value 90
+s Vent1 On state
+sgt state value 100
+s Vent2 On state
+sgt state value 110
+s Vent3 On state
+j Loop
