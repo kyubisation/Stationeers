@@ -6,15 +6,12 @@ alias Vent3 d3
 alias value r0
 alias state r1
 
-#define AVhash -1129453144
-#sb AVhash Mode 1
-
+Loop:
+yield
 s Vent1 Mode 1
 s Vent2 Mode 1
 s Vent3 Mode 1
 
-Loop:
-yield
 l value Sensor Pressure
 sgt state value 140
 #sb AVhash On state

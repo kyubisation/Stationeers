@@ -52,11 +52,8 @@ alias eiValue r0
 move SP SetPoint
 Loop:
 yield
-# If SleepToggle Device is set:
-bdseal SleepToggle LoadSleepToggle
-# If SleepToggle Device is NOT set:
 bdns SleepToggle LoadSensorValue
-
+j LoadSleepToggle
 Filter:
 beqz FilterTicks SPCalc
 move FilterHoldValue InputValue

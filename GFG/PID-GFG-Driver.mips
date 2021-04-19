@@ -2,12 +2,18 @@ alias Switch d0
 alias Generator d1
 alias CoolingPump d2
 alias FuelPump d3
+alias Housing db
 
-alias value r0
+alias state r0
+alias powerGenerated r1
+
 Loop:
-l value Switch Setting
-s Generator On value
-s CoolingPump On value
-s FuelPump On value
-s db Setting value
+l state Switch Setting
+s Generator On state
+s CoolingPump On state
+s FuelPump On state
+
+l powerGenerated Generator PowerGeneration
+s Housing Setting powerGenerated
+
 j Loop
