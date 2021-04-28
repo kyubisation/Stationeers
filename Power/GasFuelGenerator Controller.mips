@@ -1,0 +1,60 @@
+alias gasSensor d0
+alias powerSource d1
+alias airConditioner d2
+alias gfg d3
+alias housing db
+
+alias roomTemperature r1 # K
+alias roomPressure r2 # kPA
+alias powerPercentage r3 # %
+
+define GfgRequired 1
+define RoomMinTemp 278 # K
+define RoomTargetTemp 293 # K
+define RoomMaxTemp 328 # K
+define RoomMinPressure 20 # kPA
+
+define WallCoolerCode -739292323
+define WallHeaterCode 24258244
+
+s airConditioner On 1
+
+start:
+yield
+l roomTemperature gasSensor Temperature
+l roomPressure gasSensor Pressure
+s housing Setting roomTemperature
+
+blt roomPressure RoomMinPressure pressurizeChamber
+blt roomTemperature RoomMinTemp heatChamber
+bgt roomTemperature RoomMaxTemp coolChamber
+bgt roomTemperature RoomTargetTemp activateAC
+s airConditioner Open 0
+j checkCharge
+
+activateAC:
+s airConditioner Open 1
+
+checkCharge:
+l powerPercentage powerSource Setting
+blt powerPercentage GfgRequired activateGfg
+s gfg On 0
+j start
+
+pressurizeChamber:
+s gfg On 0
+j start
+
+heatChamber:
+s gfg On 0
+s airConditioner Open 1
+j start
+
+coolChamber:
+s gfg On 0
+s airConditioner Open 1
+j start
+
+activateGfg:
+s gfg On 1
+j start

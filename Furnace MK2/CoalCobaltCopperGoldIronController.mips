@@ -50,6 +50,7 @@ bgt currentState ReagentAvailable outputReagent
 
 # Check availability
 l selectedIngot selectionHousing Setting
+beq selectedIngot LeadIngot reagentUnknown
 beq selectedIngot NickelIngot reagentUnknown
 beq selectedIngot SiliconIngot reagentUnknown
 beq selectedIngot SilverIngot reagentUnknown

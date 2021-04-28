@@ -1,0 +1,37 @@
+alias solarBattery1 d0
+alias solarBattery2 d1
+alias windBattery1 d2
+alias windBattery2 d3
+alias gfgBattery d4
+
+alias ratio r0
+alias ratioAverage r1
+
+define MinRatio 0.5
+define MaxGfgRatio 0.95
+
+start:
+move ratioAverage 0
+l ratio solarBattery1 Ratio
+add ratioAverage ratioAverage ratio
+l ratio solarBattery2 Ratio
+add ratioAverage ratioAverage ratio
+l ratio windBattery1 Ratio
+add ratioAverage ratioAverage ratio
+l ratio windBattery2 Ratio
+add ratioAverage ratioAverage ratio
+
+div ratioAverage ratioAverage 4
+
+l ratio gfgBattery Ratio
+bgt ratioAverage MinRatio deactivateGfg
+bgt ratio MaxGfgRatio deactivateGfg
+s db Setting ratioAverage
+j done
+
+deactivateGfg:
+s db Setting 1
+
+done:
+yield
+j start

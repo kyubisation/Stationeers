@@ -9,6 +9,8 @@ alias targetPressure r1
 alias canisterAvailable r2
 alias canisterPressure r3
 alias tankPressure r4
+alias pumpSetting r5
+alias pressureDiff r6
 
 # Max pipe pressure is 60.795MPa
 # Units are KPa
@@ -50,7 +52,11 @@ move targetPressure MaxSmartCanPressure
 checkCanisterPressure:
 ls canisterPressure canisterStorage 0 Pressure
 ble targetPressure canisterPressure disableCanister
-s canisterPump Setting 5
+sub pressureDiff targetPressure canisterPressure
+div pumpSetting 5 targetPressure
+mul pumpSetting pumpSetting pressureDiff
+min pumpSetting pumpSetting 1
+s canisterPump Setting pumpSetting
 s canisterPump On 1
 j done
 
