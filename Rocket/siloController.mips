@@ -2,24 +2,55 @@ alias command d0
 alias silo d1
 alias quantity d2
 alias unload d3
+alias housing db
 
-alias tmp r0
+alias automatedUnloading r1
+alias manualUnloading r2
+alias oreQuantity r3
+
+define DEFAULT 0
+define UNLOAD 42
 
 start:
-#l tmp command Mode
-
-l tmp silo Quantity
-s quantity Setting tmp
-
-# check unload
-l tmp unload Setting
-beq tmp 1 unload
-
-s silo Open 0
 yield
+jal refresh
+beqz oreQuantity start
+
+# check auto unload
+beq automatedUnloading UNLOAD autoUnload
+
+# check manual unload
+l manualUnloading unload Setting
+beqal manualUnloading 1 manualUnload
+beq manualUnloading 0 stopUnload
+
+# we are back in "normal" mode:
+s housing Setting DEFAULT
 j start
 
-unload:
+autoUnload:
+move manualUnloading 0
 s silo Open 1
+
+unloading:
 yield
+jal refresh
+bgtz oreQuantity unloading
+j stopUnload
+
+stopUnload:
+move manualUnloading 0
+s silo Open 0
+s housing Setting DEFAULT
 j start
+
+# Functions (returning to invocation):
+manualUnload:
+s silo Open 1
+j ra
+
+refresh:
+l oreQuantity silo Quantity
+s quantity Setting oreQuantity
+l automatedUnloading housing Setting
+j ra

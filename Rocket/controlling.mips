@@ -1,9 +1,14 @@
 alias command d0
 alias returnlever d1
 alias launchbutton d2
+alias iceController d3
+alias oreController d4
+
 alias housing db
 
 alias tmp r0
+alias iceSetting r1
+alias oreSetting r2
 
 define RESET 0
 define LAUNCH 1
@@ -12,21 +17,25 @@ define WAITING 4
 define RETURN 5
 define HOME 6
 
-define ModularRocketSilo -90221115
-define OreMiningModule -2027419821
-define IceMiningModule 74521920
-define SalvageModule -1446002463
+define UNLOAD 42
+
+define modularRocketSilo -90221115
+define oreMiningModule -2027419821
+define iceMiningModule 74521920
+define salvageModule -1446002463
+define chipHousing -128473777
 
 start:
 yield
-
-# check button has been pressed:
-l tmp launchbutton Setting
-beqz tmp start
+s housing Setting RESET
 
 # check fuel
 l tmp command Fuel
 blt tmp 1000 start
+
+# check button has been pressed:
+l tmp launchbutton Setting
+beqz tmp start
 
 # init launch:
 s command Activate LAUNCH
@@ -38,9 +47,9 @@ l tmp command Mode
 beq tmp TRAVEL travel
 
 # have arrived so activate collectors:
-sb SalvageModule Activate 1
-sb IceMiningModule Activate 1
-sb OreMiningModule Activate 1
+sb salvageModule Activate 1
+sb iceMiningModule Activate 1
+sb oreMiningModule Activate 1
 
 mine:
 yield
@@ -53,9 +62,7 @@ l tmp returnlever Setting
 beq tmp 1 return
 
 # check maximum quantity of silos:
-lb tmp ModularRocketSilo Quantity Maximum
-# debug:
-s housing Setting tmp
+lb tmp modularRocketSilo Quantity Maximum
 
 # check still collectable goods
 l tmp command CollectableGoods
@@ -76,4 +83,20 @@ yield
 l tmp command Mode
 beq tmp RETURN returning
 
+s command Activate RESET
+s housing Setting UNLOAD
+
+unloadingInProgress:
+yield
+jal refreshChipHousings
+beq iceSetting UNLOAD unloadingInProgress
+beq oreSetting UNLOAD unloadingInProgress
+
+unloadingFinished:
+s housing Setting RESET
 j start
+
+refreshChipHousings:
+l iceSetting iceController Setting
+l oreSetting oreController Setting
+j ra
