@@ -85,6 +85,8 @@ beq tmp RETURN returning
 
 s command Activate RESET
 s housing Setting UNLOAD
+s iceController Setting UNLOAD
+s oreController Setting UNLOAD
 
 unloadingInProgress:
 yield
