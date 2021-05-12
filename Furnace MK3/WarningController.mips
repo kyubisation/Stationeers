@@ -1,0 +1,18 @@
+alias mainHousing d0
+alias inProgress d1
+
+alias temp r0
+alias isInProgress r1
+
+start:
+l temp mainHousing Setting
+bge temp 2 active
+s inProgress On 0
+j done
+
+active:
+s inProgress On 1
+
+done:
+yield
+j start

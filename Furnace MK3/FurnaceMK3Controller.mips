@@ -1,0 +1,207 @@
+alias mainHousing d0
+alias selectionHousing d1
+alias fuelFurnace d2
+alias smeltFurnace d3
+alias gasMixer d4
+alias coolingPipe d5
+
+alias smeltState r0
+alias selectedIngot r1
+alias minTemp r2
+alias minPressure r3
+alias maxTemp r4
+alias maxPressure r5
+alias currentTemp r6
+alias currentPressure r7
+alias coolPipeTemp r8
+alias hotPipeTemp r9
+alias targetTemp r10
+alias coolDiff r11
+alias hotDiff r12
+alias mixerRatio r13
+alias pressureDiff r14
+alias pumpValue r15
+alias recipeHash r15
+alias reagentsCount r15
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define EmptyPressure 1
+define RequiredFuelPressure 300
+
+define SmeltFurnaceLoaded 3
+
+s smeltFurnace Open 0
+s smeltFurnace SettingInput 100
+
+checkSelection:
+l selectedIngot selectionHousing Setting
+# Add/subtract 10 for buffer
+move minPressure 110
+move maxPressure 99990
+move minTemp 610
+move maxTemp 99990
+
+brne selectedIngot IronIngot 2
+move minTemp 810
+brne selectedIngot LeadIngot 2
+move minTemp 410
+brne selectedIngot NickelIngot 2
+move minTemp 810
+brne selectedIngot SiliconIngot 2
+move minTemp 910
+brne selectedIngot ConstantanIngot 4
+move minPressure 20010
+move minTemp 1010
+move maxTemp 9990
+brne selectedIngot ElectrumIngot 3
+move minPressure 810
+move maxPressure 2390
+brne selectedIngot InvarIngot 5
+move minPressure 18010
+move maxPressure 19990
+move minTemp 1210
+move maxTemp 1490
+brne selectedIngot SolderIngot 4
+move minPressure 1010
+move minTemp 350
+move maxTemp 540
+brne selectedIngot SteelIngot 3
+move minPressure 1010
+move minTemp 910
+brne selectedIngot AstroloyIngot 4
+move minPressure 30010
+move maxPressure 39990
+move minTemp 1010
+brne selectedIngot HastelloyIngot 5
+move minPressure 25010
+move maxPressure 39990
+move minTemp 950
+move maxTemp 990
+brne selectedIngot InconelIngot 3
+move minPressure 23510
+move maxPressure 23990
+brne selectedIngot StelliteIngot 4
+move minPressure 10010
+move maxPressure 19990
+move minTemp 1810
+brne selectedIngot WaspaloyIngot 4
+move minPressure 50010
+move minTemp 410
+move maxTemp 790
+
+checkState:
+yield
+l smeltState mainHousing Setting
+bne smeltState SmeltFurnaceLoaded abort
+
+jal checkPressure
+
+l currentTemp fuelFurnace Temperature
+ble currentTemp minTemp emptyFuelFurnace
+l currentPressure fuelFurnace Pressure
+bgt currentPressure EmptyPressure mixGases
+
+emptyFuelFurnace:
+yield
+s gasMixer Setting 100
+s gasMixer On 1
+s fuelFurnace SettingOutput 100
+l currentPressure fuelFurnace Pressure
+bgt currentPressure EmptyPressure emptyFuelFurnace
+s fuelFurnace SettingOutput 0
+
+burnFuel:
+yield
+s fuelFurnace SettingOutput 0
+s fuelFurnace SettingInput 5
+l currentPressure fuelFurnace Pressure
+blt currentPressure RequiredFuelPressure burnFuel
+s fuelFurnace SettingInput 0
+s fuelFurnace Activate 1
+yield
+s fuelFurnace Activate 0
+
+mixGases:
+l coolPipeTemp coolingPipe Temperature
+l hotPipeTemp fuelFurnace Temperature
+l currentTemp smeltFurnace Temperature
+
+sub targetTemp maxTemp currentTemp
+add targetTemp maxTemp targetTemp
+
+sub coolDiff targetTemp coolPipeTemp
+sub hotDiff hotPipeTemp targetTemp
+blez hotDiff fullHeat
+
+add mixerRatio coolDiff hotDiff
+div mixerRatio 100 mixerRatio
+mul mixerRatio mixerRatio hotDiff
+s gasMixer Setting mixerRatio
+j regulateHeatOutput
+
+fullHeat:
+s gasMixer Setting 100
+
+regulateHeatOutput:
+jal checkPressure
+div pumpValue pressureDiff 100
+max pumpValue pumpValue 100
+min pumpValue pumpValue 5
+s fuelFurnace SettingOutput pumpValue
+j checkDone
+
+ventSmeltPressure:
+s fuelFurnace SettingOutput 0
+s gasMixer Setting 100
+div pumpValue pressureDiff -50
+max pumpValue pumpValue 25
+min pumpValue pumpValue 5
+s smeltFurnace SettingOutput pumpValue
+
+checkDone:
+l currentTemp smeltFurnace Temperature
+l currentPressure smeltFurnace Pressure
+ble currentPressure minPressure checkState
+bgt currentPressure maxPressure checkState
+ble currentTemp minTemp checkState
+bgt currentTemp maxTemp checkState
+l recipeHash smeltFurnace RecipeHash
+bne recipeHash selectedIngot checkState
+
+empty:
+s smeltFurnace Open 1 #Open up the furnace
+sleep 1
+l reagentsCount smeltFurnace Reagents #Check empty furnace
+bne reagentsCount 0 empty
+s smeltFurnace Open 0
+j checkSelection
+
+checkPressure:
+l currentPressure smeltFurnace Pressure
+sub pressureDiff maxPressure currentPressure
+bltz pressureDiff ventSmeltPressure
+s smeltFurnace SettingOutput 0
+j ra
+
+abort:
+s fuelFurnace SettingOutput 0
+s smeltFurnace SettingOutput 0
+s gasMixer Setting 100
+j checkSelection

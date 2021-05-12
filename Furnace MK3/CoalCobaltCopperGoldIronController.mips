@@ -1,0 +1,151 @@
+alias coalSilo d0
+alias cobaltSilo d1
+alias copperSilo d2
+alias goldSilo d3
+alias ironSilo d4
+alias selectionHousing d5
+
+alias currentState r0
+alias selectedIngot r1
+alias outputState r2
+alias reagentAmount r3
+
+define CoalOre 1724793494
+define CobaltOre -983091249
+define CopperOre -707307845
+define GoldOre -1348105509	
+define IronOre 1758427767
+define LeadOre -190236170
+define NickelOre 1830218956
+define SiliconOre 1103972403
+define SilverOre -916518678
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define ReagentAvailable 1
+define ReagentUnknown 0
+define ReagentMissing -1
+
+start:
+l currentState db Setting
+blt currentState ReagentMissing outputReagent
+bgt currentState ReagentAvailable outputReagent
+
+# Check availability
+l selectedIngot selectionHousing Setting
+beq selectedIngot LeadIngot reagentUnknown
+beq selectedIngot NickelIngot reagentUnknown
+beq selectedIngot SiliconIngot reagentUnknown
+beq selectedIngot SilverIngot reagentUnknown
+beq selectedIngot WaspaloyIngot reagentUnknown
+brne selectedIngot CopperIngot 3
+l reagentAmount copperSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot GoldIngot 3
+l reagentAmount goldSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot IronIngot 3
+l reagentAmount ironSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot ConstantanIngot 3
+l reagentAmount copperSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot ElectrumIngot 3
+l reagentAmount goldSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot InvarIngot 3
+l reagentAmount ironSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot SolderIngot 3
+l reagentAmount ironSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot SteelIngot 5
+l reagentAmount coalSilo Quantity
+beqz reagentAmount notAvailable
+l reagentAmount ironSilo Quantity
+bge reagentAmount 3 hasAvailable
+brne selectedIngot AstroloyIngot 5
+l reagentAmount cobaltSilo Quantity
+beqz reagentAmount notAvailable
+l reagentAmount copperSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot HastelloyIngot 3
+l reagentAmount cobaltSilo Quantity
+bgtz reagentAmount hasAvailable
+brne selectedIngot InconelIngot 3
+l reagentAmount goldSilo Quantity
+bge reagentAmount 2 hasAvailable
+brne selectedIngot StelliteIngot 3
+l reagentAmount cobaltSilo Quantity
+bgtz reagentAmount hasAvailable
+j notAvailable
+
+hasAvailable:
+s db Setting ReagentAvailable
+j done
+
+notAvailable:
+s db Setting ReagentMissing
+j done
+
+reagentUnknown:
+s db Setting ReagentUnknown
+j done
+
+outputReagent:
+brne currentState CoalOre 2
+s coalSilo Open 1
+brne currentState CobaltOre 2
+s cobaltSilo Open 1
+brne currentState CopperOre 2
+s copperSilo Open 1
+brne currentState GoldOre 2
+s goldSilo Open 1
+brne currentState IronOre 2
+s ironSilo Open 1
+beq currentState LeadOre markAsDone
+beq currentState NickelOre markAsDone
+beq currentState SiliconOre markAsDone
+beq currentState SilverOre markAsDone
+beq currentState SteelIngot markAsDone
+
+waitDeviceOutput:
+yield
+ls outputState coalSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState cobaltSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState copperSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState goldSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+ls outputState ironSilo 1 Occupied
+bgtz outputState waitDeviceOutput
+s coalSilo Open 0
+s cobaltSilo Open 0
+s copperSilo Open 0
+s goldSilo Open 0
+s ironSilo Open 0
+
+markAsDone:
+s db Setting 0
+
+done:
+yield
+j start

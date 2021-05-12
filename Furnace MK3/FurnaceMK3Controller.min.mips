@@ -1,0 +1,127 @@
+s d3 Open 0
+s d3 SettingInput 100
+l r1 d1 Setting
+move r3 110
+move r5 99990
+move r2 610
+move r4 99990
+brne r1 -1301215609 2
+move r2 810
+brne r1 2134647745 2
+move r2 410
+brne r1 -1406385572 2
+move r2 810
+brne r1 -290196476 2
+move r2 910
+brne r1 1058547521 4
+move r3 20010
+move r2 1010
+move r4 9990
+brne r1 502280180 3
+move r3 810
+move r5 2390
+brne r1 -297990285 5
+move r3 18010
+move r5 19990
+move r2 1210
+move r4 1490
+brne r1 -82508479 4
+move r3 1010
+move r2 350
+move r4 540
+brne r1 -654790771 3
+move r3 1010
+move r2 910
+brne r1 412924554 4
+move r3 30010
+move r5 39990
+move r2 1010
+brne r1 1579842814 5
+move r3 25010
+move r5 39990
+move r2 950
+move r4 990
+brne r1 -787796599 3
+move r3 23510
+move r5 23990
+brne r1 -1897868623 4
+move r3 10010
+move r5 19990
+move r2 1810
+brne r1 156348098 4
+move r3 50010
+move r2 410
+move r4 790
+yield
+l r0 d0 Setting
+bne r0 3 123
+jal 118
+l r6 d2 Temperature
+ble r6 r2 62
+l r7 d2 Pressure
+bgt r7 1 78
+yield
+s d4 Setting 100
+s d4 On 1
+s d2 SettingOutput 100
+l r7 d2 Pressure
+bgt r7 1 62
+s d2 SettingOutput 0
+yield
+s d2 SettingOutput 0
+s d2 SettingInput 5
+l r7 d2 Pressure
+blt r7 300 69
+s d2 SettingInput 0
+s d2 Activate 1
+yield
+s d2 Activate 0
+l r8 d5 Temperature
+l r9 d2 Temperature
+l r6 d3 Temperature
+sub r10 r4 r6
+add r10 r4 r10
+sub r11 r10 r8
+sub r12 r9 r10
+blez r12 91
+add r13 r11 r12
+div r13 100 r13
+mul r13 r13 r12
+s d4 Setting r13
+j 92
+s d4 Setting 100
+jal 118
+div r15 r14 100
+max r15 r15 100
+min r15 r15 5
+s d2 SettingOutput r15
+j 104
+s d2 SettingOutput 0
+s d4 Setting 100
+div r15 r14 -100
+max r15 r15 50
+min r15 r15 5
+s d3 SettingOutput r15
+l r6 d3 Temperature
+l r7 d3 Pressure
+ble r7 r3 54
+bgt r7 r5 54
+ble r6 r2 54
+bgt r6 r4 54
+l r15 d3 RecipeHash
+bne r15 r1 54
+s d3 Open 1 #Open up the furnace
+sleep 1
+l r15 d3 Reagents #Check empty furnace
+bne r15 0 112
+s d3 Open 0
+j 2
+l r7 d3 Pressure
+sub r14 r5 r7
+bltz r14 98
+s d3 SettingOutput 0
+j ra
+s d2 SettingOutput 0
+s d3 SettingOutput 0
+s d4 Setting 100
+j 2

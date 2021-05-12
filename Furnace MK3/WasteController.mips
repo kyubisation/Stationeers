@@ -1,0 +1,118 @@
+alias mainHousing d0
+alias selectionHousing d1
+alias wasteTank d2
+alias coolingValve d3
+alias ventPump d4
+
+alias wasteTemp r0
+alias wastePressure r1
+alias coolingOn r2
+alias ventingOn r3
+alias selectedIngot r4
+alias minTemp r5
+alias minPressure r6
+alias maxTemp r7
+alias maxPressure r8
+alias smeltState r9
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+define MaxTankPressure 1000
+define SmeltFurnaceLoaded 3
+
+s coolingValve On 0
+s ventPump On 0
+s ventPump Setting 5
+
+checkSelection:
+l selectedIngot selectionHousing Setting
+# Add/subtract 10 for buffer
+move minPressure 110
+move maxPressure 99990
+move minTemp 610
+move maxTemp 99990
+
+brne selectedIngot IronIngot 2
+move minTemp 810
+brne selectedIngot LeadIngot 2
+move minTemp 410
+brne selectedIngot NickelIngot 2
+move minTemp 810
+brne selectedIngot SiliconIngot 2
+move minTemp 910
+brne selectedIngot ConstantanIngot 4
+move minPressure 20010
+move minTemp 1010
+move maxTemp 9990
+brne selectedIngot ElectrumIngot 3
+move minPressure 810
+move maxPressure 2390
+brne selectedIngot InvarIngot 5
+move minPressure 18010
+move maxPressure 19990
+move minTemp 1210
+move maxTemp 1490
+brne selectedIngot SolderIngot 4
+move minPressure 1010
+move minTemp 350
+move maxTemp 540
+brne selectedIngot SteelIngot 3
+move minPressure 1010
+move minTemp 910
+brne selectedIngot AstroloyIngot 4
+move minPressure 30010
+move maxPressure 39990
+move minTemp 1010
+brne selectedIngot HastelloyIngot 5
+move minPressure 25010
+move maxPressure 39990
+move minTemp 950
+move maxTemp 990
+brne selectedIngot InconelIngot 3
+move minPressure 23510
+move maxPressure 23990
+brne selectedIngot StelliteIngot 4
+move minPressure 10010
+move maxPressure 19990
+move minTemp 1810
+brne selectedIngot WaspaloyIngot 4
+move minPressure 50010
+move minTemp 410
+move maxTemp 790
+
+checkState:
+yield
+l smeltState mainHousing Setting
+bne smeltState SmeltFurnaceLoaded abort
+
+l wasteTemp wasteTank Temperature
+sgt coolingOn wasteTemp maxTemp
+s coolingValve On coolingOn
+
+l wastePressure wasteTank Pressure
+sgt ventingOn wastePressure MaxTankPressure
+s ventPump On ventingOn
+
+done:
+j checkState
+
+abort:
+s coolingValve On 0
+s ventPump On 0
+j checkSelection

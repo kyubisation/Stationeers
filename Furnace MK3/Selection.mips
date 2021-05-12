@@ -1,0 +1,113 @@
+alias mainHousing d0
+alias nextIngotButton d1
+alias previousIngotButton d2
+alias furnaceHousing d3
+
+alias ingotIndex r0
+alias ingotTarget r1
+alias previousButtonActive r2
+alias nextButtonActive r3
+alias smeltingState r4
+alias currentSelection r5
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+define LastIndex 16
+
+define SmeltVendorCheck 0
+define SmeltVendorReady 1
+define SmeltLoadingFurnace 2
+
+move ingotIndex 0
+
+start:
+
+l smeltingState mainHousing Setting
+blt smeltingState SmeltLoadingFurnace ready
+j done
+
+ready:
+l nextButtonActive nextIngotButton Setting
+bgtz nextButtonActive increment
+l previousButtonActive previousIngotButton Setting
+bgtz previousButtonActive decrement
+j indexChangeDone
+
+increment:
+beq ingotIndex LastIndex resetIndex
+add ingotIndex ingotIndex 1
+j indexChangeDone
+
+decrement:
+beq ingotIndex 0 toLastIndex
+sub ingotIndex ingotIndex 1
+j indexChangeDone
+
+resetIndex:
+move ingotIndex 0
+j indexChangeDone
+
+toLastIndex:
+move ingotIndex LastIndex
+
+indexChangeDone:
+
+mul ingotTarget ingotIndex 2
+add ingotTarget ingotTarget 1
+jr ingotTarget
+move currentSelection CopperIngot
+j assignSelection
+move currentSelection GoldIngot
+j assignSelection
+move currentSelection IronIngot
+j assignSelection
+move currentSelection LeadIngot
+j assignSelection
+move currentSelection NickelIngot
+j assignSelection
+move currentSelection SiliconIngot
+j assignSelection
+move currentSelection SilverIngot
+j assignSelection
+move currentSelection ConstantanIngot
+j assignSelection
+move currentSelection ElectrumIngot
+j assignSelection
+move currentSelection InvarIngot
+j assignSelection
+move currentSelection SolderIngot
+j assignSelection
+move currentSelection SteelIngot
+j assignSelection
+move currentSelection AstroloyIngot
+j assignSelection
+move currentSelection HastelloyIngot
+j assignSelection
+move currentSelection InconelIngot
+j assignSelection
+move currentSelection StelliteIngot
+j assignSelection
+move currentSelection WaspaloyIngot
+
+assignSelection:
+s db Setting currentSelection
+s furnaceHousing Setting currentSelection
+
+done:
+yield
+j start

@@ -1,0 +1,104 @@
+alias selectionHousing d0
+alias minTempDisplay d1
+alias maxTempDisplay d2
+alias minPressureDisplay d3
+alias maxPressureDisplay d4
+
+alias selectedIngot r0
+alias minTemp r2
+alias minPressure r3
+alias maxTemp r4
+alias maxPressure r5
+
+define CopperIngot -404336834
+define GoldIngot 226410516
+define IronIngot -1301215609
+define LeadIngot 2134647745
+define NickelIngot -1406385572
+define SiliconIngot -290196476
+define SilverIngot -929742000
+define ConstantanIngot 1058547521
+define ElectrumIngot 502280180
+define InvarIngot -297990285
+define SolderIngot -82508479
+define SteelIngot -654790771
+define AstroloyIngot 412924554
+define HastelloyIngot 1579842814
+define InconelIngot -787796599	
+define StelliteIngot -1897868623
+define WaspaloyIngot 156348098
+
+s minTempDisplay Color 0
+s maxTempDisplay Color 4
+s minPressureDisplay Color 0
+s maxPressureDisplay Color 4
+
+start:
+l selectedIngot selectionHousing Setting
+
+move minPressure 100
+move maxPressure 100000
+move minTemp 600
+move maxTemp 100000
+
+brne selectedIngot IronIngot 2
+move minTemp 800
+brne selectedIngot LeadIngot 2
+move minTemp 400
+brne selectedIngot NickelIngot 2
+move minTemp 800
+brne selectedIngot SiliconIngot 2
+move minTemp 900
+brne selectedIngot ConstantanIngot 4
+move minPressure 20000
+move minTemp 1000
+move maxTemp 10000
+brne selectedIngot ElectrumIngot 3
+move minPressure 800
+move maxPressure 2400
+brne selectedIngot InvarIngot 5
+move minPressure 18000
+move maxPressure 20000
+move minTemp 1200
+move maxTemp 1500
+brne selectedIngot SolderIngot 4
+move minPressure 1000
+move minTemp 350
+move maxTemp 550
+brne selectedIngot SteelIngot 3
+move minPressure 1000
+move minTemp 900
+brne selectedIngot AstroloyIngot 4
+move minPressure 30000
+move maxPressure 40000
+move minTemp 1000
+brne selectedIngot HastelloyIngot 5
+move minPressure 25000
+move maxPressure 30000
+move minTemp 950
+move maxTemp 1000
+brne selectedIngot InconelIngot 3
+move minPressure 23500
+move maxPressure 24000
+brne selectedIngot StelliteIngot 4
+move minPressure 10000
+move maxPressure 20000
+move minTemp 1800
+brne selectedIngot WaspaloyIngot 5
+move minPressure 50000
+move minTemp 400
+move maxTemp 800
+
+sub minTemp minTemp 273
+sub maxTemp maxTemp 273
+div minPressure minPressure 1000
+div maxPressure maxPressure 1000
+
+s minTempDisplay Setting minTemp
+s maxTempDisplay Setting maxTemp
+s minPressureDisplay Setting minPressure
+s maxPressureDisplay Setting maxPressure
+
+done:
+yield
+j start
