@@ -1,0 +1,44 @@
+alias AirConditioner d0
+alias AirVent d1
+alias Self db
+
+alias OutputPressure r0
+alias AirConditionerPower r1
+alias RoomPressure r2
+alias RoomRatio r3
+
+define MaxOutputPressure 55000 # KPa
+define TargetPressure 100 # KPa
+# Target would be 0.25, but we leave a margin
+define TargetRatio 0.24 # KPa
+
+loop:
+l OutputPressure Self PressureOutput
+
+blt OutputPressure MaxOutputPressure activateFiltration
+s Self Mode 0
+j roomControl
+
+activateFiltration:
+s Self Mode 1
+
+roomControl:
+# Skip room control if Air Conditioner is off
+l AirConditionerPower AirConditioner Power
+beq AirConditionerPower 0 loop
+
+# Read current atmosphere details
+l RoomPressure AirConditioner PressureInput
+l RoomRatio AirConditioner RatioOxygenInput
+
+blt RoomRatio TargetRatio activateVent
+blt TargetPressure RoomPressure activateVent
+
+s AirVent On 0
+j loop
+
+activateVent:
+# Set Air Vent to outward mode
+s AirVent Mode 0
+s AirVent On 1
+j loop
