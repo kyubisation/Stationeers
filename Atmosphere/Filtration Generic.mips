@@ -1,0 +1,17 @@
+alias Self db
+
+alias OutputPressure r0
+
+define MaxOutputPressure 55000 # KPa
+
+loop:
+l OutputPressure Self PressureOutput
+
+blt OutputPressure MaxOutputPressure activateFiltration
+s Self Mode 0
+j loop
+
+activateFiltration:
+s Self Mode 1
+
+j loop

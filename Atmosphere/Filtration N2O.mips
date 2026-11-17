@@ -1,0 +1,30 @@
+alias Self db
+alias Heater d0
+
+alias OutputPressure r0
+alias OutputTemparature r1
+
+define MaxOutputPressure 55000 # KPa
+define TargetTemparature 431 # Kelvin
+
+loop:
+l OutputPressure Self PressureOutput
+
+blt OutputPressure MaxOutputPressure activateFiltration
+s Self Mode 0
+j heatControl
+
+activateFiltration:
+s Self Mode 1
+
+heatControl:
+l OutputTemparature Self TemperatureOutput
+
+blt OutputTemparature TargetTemparature activateHeater
+
+s Heater On 0
+j loop
+
+activateHeater:
+s Heater On 1
+j loop
