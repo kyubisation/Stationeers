@@ -1,0 +1,38 @@
+alias Self db
+alias AirVent d0
+
+alias CurrentPressure r0
+alias NitrogenRatio r1
+alias OxygenRatio r2
+
+define MaxInputPressure 101 # KPa
+define TargetNitrogenRatio 0.75 # KPa
+define TargetOxygenRatio 0.25 # KPa
+
+loop:
+l CurrentPressure Self PressureInput
+
+bgt CurrentPressure MaxInputPressure activateVent
+
+s AirVent On 0
+j roomFilter
+
+activateVent:
+# Set Air Vent to inward mode
+s AirVent Mode 1
+s AirVent On 1
+
+roomFilter:
+
+l NitrogenRatio Self RatioNitrogenInput
+bne NitrogenRatio TargetNitrogenRatio activateFiltration
+l OxygenRatio Self RatioOxygenInput
+bne OxygenRatio TargetOxygenRatio activateFiltration
+
+s Self Mode 0
+j loop
+
+activateFiltration:
+s Self Mode 1
+
+j loop
