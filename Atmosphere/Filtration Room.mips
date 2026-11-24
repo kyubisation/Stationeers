@@ -1,18 +1,20 @@
 alias Self db
 alias AirVent d0
+alias GasSensor d1
 
 alias CurrentPressure r0
 alias NitrogenRatio r1
 alias OxygenRatio r2
+alias FiltarQuantity r3
 
-define MaxInputPressure 101 # KPa
+define MaxPressure 100 # KPa
 define TargetNitrogenRatio 0.75 # KPa
 define TargetOxygenRatio 0.25 # KPa
 
 loop:
-l CurrentPressure Self PressureInput
+l CurrentPressure GasSensor Pressure
 
-bgt CurrentPressure MaxInputPressure activateVent
+bgt CurrentPressure MaxPressure activateVent
 
 s AirVent On 0
 j roomFilter
@@ -23,12 +25,17 @@ s AirVent Mode 1
 s AirVent On 1
 
 roomFilter:
+ls FiltarQuantity Self 0 Quantity
+beq FiltarQuantity 0 deactivateFiltration
+ls FiltarQuantity Self 1 Quantity
+beq FiltarQuantity 0 deactivateFiltration
 
 l NitrogenRatio Self RatioNitrogenInput
 bne NitrogenRatio TargetNitrogenRatio activateFiltration
 l OxygenRatio Self RatioOxygenInput
 bne OxygenRatio TargetOxygenRatio activateFiltration
 
+deactivateFiltration:
 s Self Mode 0
 j loop
 

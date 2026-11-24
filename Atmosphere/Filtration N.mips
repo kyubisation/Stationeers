@@ -1,16 +1,14 @@
-alias AirConditioner d0
+alias GasSensor d0
 alias AirVent d1
 alias Self db
 
 alias OutputPressure r0
-alias AirConditionerPower r1
-alias RoomPressure r2
-alias RoomRatio r3
+alias RoomPressure r1
+alias RoomRatio r2
+alias CurrentValue r3
 
 define MaxOutputPressure 55000 # KPa
-define TargetPressure 100 # KPa
-# Target would be 0.75, but we leave a margin
-define TargetRatio 0.74 # KPa
+define Threshold 74.75
 
 loop:
 l OutputPressure Self PressureOutput
@@ -23,16 +21,13 @@ activateFiltration:
 s Self Mode 1
 
 roomControl:
-# Skip room control if Air Conditioner is off
-l AirConditionerPower AirConditioner Power
-beq AirConditionerPower 0 loop
 
 # Read current atmosphere details
-l RoomPressure AirConditioner PressureInput
-l RoomRatio AirConditioner RatioNitrogenInput
+l RoomPressure GasSensor Pressure
+l RoomRatio GasSensor RatioNitrogen
+mul CurrentValue RoomPressure RoomRatio
 
-blt RoomRatio TargetRatio activateVent
-blt TargetPressure RoomPressure activateVent
+blt CurrentValue Threshold activateVent
 
 s AirVent On 0
 j loop
